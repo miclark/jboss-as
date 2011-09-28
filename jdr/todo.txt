@@ -1,0 +1,6 @@
+Add schema - move to docs
+Check on static INSTANCE and concurrancy.
+Create CommandLine class
+move module stuff under build directory
+add module-def to top level pom.xml
+add script jar
