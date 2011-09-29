@@ -51,10 +51,8 @@ public class JdrReportExtension implements Extension {
 
     public static final String SUBSYSTEM_NAME = "jdr";
 
-    @Override
     public void initialize(ExtensionContext context) {
         final DescriptionProvider subsystemDescription = new DescriptionProvider() {
-            @Override
             public ModelNode getModelDescription(Locale locale) {
                 return JdrReportDescriptions.getJdrSubsystemDescription(locale);
             }
@@ -70,7 +68,6 @@ public class JdrReportExtension implements Extension {
         root.registerOperationHandler(JdrReportRequestHandler.OPERATION_NAME, JdrReportRequestHandler.INSTANCE, JdrReportRequestHandler.INSTANCE);
     }
 
-    @Override
     public void initializeParsers(ExtensionParsingContext context) {
         context.setSubsystemXmlMapping(Namespace.CURRENT.getUriString(), JdrReportSubsystemParser.INSTANCE);
     }
@@ -88,7 +85,6 @@ public class JdrReportExtension implements Extension {
             context.completeStep();
         }
 
-        @Override
         public ModelNode getModelDescription(Locale locale) {
             return CommonDescriptions.getSubsystemDescribeOperation(locale);
         }

@@ -25,7 +25,7 @@ package org.jboss.as.jdr;
 import org.jboss.as.controller.ModelController;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.client.ModelControllerClient;
-import org.jboss.as.embedded.ServerEnvironment;
+import org.jboss.as.server.ServerEnvironment;
 import org.jboss.as.server.ServerEnvironmentService;
 import org.jboss.as.server.Services;
 import org.jboss.logging.Logger;
@@ -75,7 +75,6 @@ public class JdrReportService implements JdrReportCollector, Service<JdrReportCo
     private ServerEnvironment serverEnvironment;
     private ModelControllerClient controllerClient;
 
-    @Override
     public JdrReport collect(JdrReportRequest request) {
         // Use the ServerEnvironment to find location of files, use the
         // ModelControllerClient to query in-memory state
@@ -94,19 +93,15 @@ public class JdrReportService implements JdrReportCollector, Service<JdrReportCo
         interpreter.set("a", new PyInteger(42));
         interpreter.exec("print a");
         interpreter.exec("x = 2+2");
-        interpreter.exec("import mmctest");
-        interpreter.exec("mmctest.dosomething()");
 
         // Obtain the value of an object from the PythonInterpreter and store it
         // into a PyObject.
         PyObject x = interpreter.get("x");
         log.info("Python 2+2 = " + x);
 
-
-        return null;
+        return new JdrReport(123456);
     }
 
-    @Override
     public void start(StartContext context) throws StartException {
         final ThreadFactory threadFactory = new JBossThreadFactory(new ThreadGroup("JdrReportCollector-threads"), Boolean.FALSE, null, "%G - %t", null, null, AccessController.getContext());
         // TODO give some more thought to what concurrency characteristics are desirable
@@ -115,12 +110,10 @@ public class JdrReportService implements JdrReportCollector, Service<JdrReportCo
         controllerClient = modelControllerValue.getValue().createClient(executorService);
     }
 
-    @Override
     public void stop(StopContext context) {
         executorService.shutdownNow();
     }
 
-    @Override
     public JdrReportService getValue() throws IllegalStateException, IllegalArgumentException {
         return this;
     }

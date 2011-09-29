@@ -518,6 +518,10 @@
             <maven-resource group="org.jboss.as" artifact="jboss-as-jaxrs"/>
         </module-def>
 
+        <module-def name="org.jboss.as.jdr">
+            <maven-resource group="org.jboss.as" artifact="jboss-as-jdr"/>
+        </module-def>
+
         <module-def name="org.jboss.as.jmx">
             <maven-resource group="org.jboss.as" artifact="jboss-as-jmx"/>
         </module-def>

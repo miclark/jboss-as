@@ -34,7 +34,7 @@
 
     <groupId>org.jboss.as</groupId>
     <artifactId>jboss-as-jdr</artifactId>
-    <version>7.1.0.Alpha1-SNAPSHOT</version>
+    <version>7.1.0.Alpha2-SNAPSHOT</version>
 
     <name>JBoss Application Server: JDR</name>
 
@@ -46,7 +46,6 @@
         <dependency>
             <groupId>org.jboss.as</groupId>
             <artifactId>jboss-as-server</artifactId>
-            <version>7.1.0.Alpha1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -56,12 +55,10 @@
         <dependency>
             <groupId>org.jboss.as</groupId>
             <artifactId>jboss-as-controller</artifactId>
-            <version>7.1.0.Alpha1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.as</groupId>
             <artifactId>jboss-as-threads</artifactId>
-            <version>7.1.0.Alpha1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.python</groupId>

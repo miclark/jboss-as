@@ -33,7 +33,6 @@ import org.jboss.staxmapper.XMLExtendedStreamWriter;
 
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
-import java.util.EnumSet;
 import java.util.List;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.*;
@@ -48,22 +47,23 @@ public final class JdrReportSubsystemParser implements XMLStreamConstants, XMLEl
         return INSTANCE;
     }
 
-    @Override
     public void readElement(final XMLExtendedStreamReader reader, final List<ModelNode> list) throws XMLStreamException {
 
-        final ModelNode address = new ModelNode();
-        address.add(SUBSYSTEM, JdrReportExtension.SUBSYSTEM_NAME);
-        address.protect();
+       // final ModelNode address = new ModelNode();
+       // address.add(SUBSYSTEM, JdrReportExtension.SUBSYSTEM_NAME);
+       // address.protect();
+
+        ParseUtils.requireNoContent(reader);
 
         //  TODO: Not sure why Util.getEmptyOperation() not used here.
         final ModelNode subsystem = new ModelNode();
         subsystem.get(OP).set(ADD);
-        subsystem.get(OP_ADDR).set(address);
+        subsystem.get(OP_ADDR).set(SUBSYSTEM, JdrReportExtension.SUBSYSTEM_NAME);
         list.add(subsystem);
 
-        ParseUtils.requireNoAttributes(reader);
 
-        readSubsystemRootElementAttributes(reader, subsystem);
+
+        //readSubsystemRootElementAttributes(reader, subsystem);
 
         /* -- don't need this unless we have elements
         while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
@@ -97,9 +97,9 @@ public final class JdrReportSubsystemParser implements XMLStreamConstants, XMLEl
         }
 
         // Attribute is required.  Throw an exception if not defined.
-        if (!subsystem.hasDefined(CommonAttributes.ENABLED)) {
-            throw ParseUtils.missingRequired(reader, EnumSet.of(Attribute.ENABLED));
-        }
+        //if (!subsystem.hasDefined(CommonAttributes.ENABLED)) {
+        //    throw ParseUtils.missingRequired(reader, EnumSet.of(Attribute.ENABLED));
+        //}
     }
 
     private void readJdrElements(final XMLExtendedStreamReader reader, final List<ModelNode> list, final ModelNode address)
@@ -115,7 +115,6 @@ public final class JdrReportSubsystemParser implements XMLStreamConstants, XMLEl
     }
 
     /** {@inheritDoc} */
-    @Override
     public void writeContent(final XMLExtendedStreamWriter writer, final SubsystemMarshallingContext context)
             throws XMLStreamException {
 

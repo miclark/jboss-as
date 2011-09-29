@@ -22,12 +22,11 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<module xmlns="urn:jboss:module:1.0" name="org.jboss.sosreport">
+<module xmlns="urn:jboss:module:1.0" name="org.jboss.as.jdr">
     <main-class name="org.jboss.as.jdr.CommandLineMain"/>
 
     <resources>
-        <resource-root path="jboss-as-sosreport.jar"/>
-        <resource-root path="sosreport-scripts.jar"/>
+        <resource-root path="jboss-as-jdr-7.1.0.Alpha2-SNAPSHOT.jar"/>
     </resources>
 
     <dependencies>
@@ -36,6 +35,7 @@
         <module name="org.jboss.as.controller"/>
         <module name="org.jboss.as.server"/>
         <module name="org.jboss.modules"/>
+        <module name="org.jboss.threads"/>
         <module name="org.jboss.msc"/>
         <module name="org.jboss.logging"/>
         <module name="org.jboss.vfs"/>

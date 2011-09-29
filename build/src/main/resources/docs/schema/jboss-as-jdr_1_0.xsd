@@ -21,8 +21,8 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-            targetNamespace="urn:jboss.domain.sosreport:1.0"
-            xmlns="urn:jboss.domain.sosreport:1.0"
+            targetNamespace="urn:jboss:domain:jdr:1.0"
+            xmlns="urn:jboss:domain:jdr:1.0"
             elementFormDefault="qualified"
             attributeFormDefault="unqualified"
             version="1.0">
@@ -30,12 +30,12 @@
     <xs:element name="subsystem" type="subsystemType"/>
 
     <xs:complexType name="subsystemType">
-        <xs:all>
-            <xs:element name="sosreport-config" type="sosreport-configType" minOccurs="0" maxOccurs="1"/>
+        <xs:all>         
+            <xs:element name="jdr-config" type="jdr-configType" minOccurs="0" maxOccurs="1"/>
         </xs:all>
     </xs:complexType>
 
-    <xs:complexType name="sosreport-configType">
+    <xs:complexType name="jdr-configType">
         <xs:sequence>
             <xs:attribute name="enabled" default="true" type="xs:boolean"/>
         </xs:sequence>
