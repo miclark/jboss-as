@@ -28,6 +28,7 @@ import org.jboss.as.controller.client.ModelControllerClient;
 import org.jboss.as.server.ServerEnvironment;
 import org.jboss.as.server.ServerEnvironmentService;
 import org.jboss.as.server.Services;
+import org.jboss.dmr.ModelNode;
 import org.jboss.logging.Logger;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceController;
@@ -42,6 +43,7 @@ import org.python.core.PyInteger;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
+import java.io.IOException;
 import java.security.AccessController;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -79,6 +81,16 @@ public class JdrReportService implements JdrReportCollector, Service<JdrReportCo
         // Use the ServerEnvironment to find location of files, use the
         // ModelControllerClient to query in-memory state
         log.info("Collecting jdr.");
+
+        ModelNode simpleRequest = new ModelNode();
+        simpleRequest.get("operation").set("read-operation-names");
+        simpleRequest.get("address").add("subsystem", "web");
+        try {
+            ModelNode response = controllerClient.execute(simpleRequest);
+            log.info("Response from " + simpleRequest.toJSONString(true) + ": " + response.toJSONString(true));
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
 
         // Create an instance of the PythonInterpreter
         PythonInterpreter interpreter = new PythonInterpreter();
