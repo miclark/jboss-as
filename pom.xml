@@ -207,6 +207,7 @@
         <version.org.picketbox>4.0.3</version.org.picketbox>
         <version.org.picketbox.picketbox-commons>1.0.0.CR1</version.org.picketbox.picketbox-commons>
         <version.org.projectodd.stilts>0.1.20</version.org.projectodd.stilts>
+        <version.org.python.jython.standalone>2.5.2</version.org.python.jython.standalone>
         <version.org.scannotation>1.0.2</version.org.scannotation>
         <version.org.slf4j.jcl-over-slf4j>1.6.1</version.org.slf4j.jcl-over-slf4j>
         <version.org.slf4j.slf4j-api>1.6.1</version.org.slf4j.slf4j-api>
@@ -250,6 +251,7 @@
         <module>host-controller</module>
         <module>jacorb</module>
         <module>jaxrs</module>
+        <module>jdr</module>
         <module>jmx</module>
         <module>jpa</module>
         <module>logging</module>
@@ -774,6 +776,12 @@
             <dependency>
                 <groupId>org.jboss.as</groupId>
                 <artifactId>jboss-as-jaxrs</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.as</groupId>
+                <artifactId>jboss-as-jdr</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -5160,6 +5168,12 @@
                 <groupId>org.projectodd.stilts</groupId>
                 <artifactId>stilts-stomplet-server-core</artifactId>
                 <version>${version.org.projectodd.stilts}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.python</groupId>
+                <artifactId>jython-standalone</artifactId>
+                <version>${version.org.python.jython.standalone}</version>
             </dependency>
 
             <dependency>
