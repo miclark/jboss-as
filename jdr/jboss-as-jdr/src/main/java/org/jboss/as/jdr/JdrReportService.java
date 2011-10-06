@@ -99,6 +99,10 @@ public class JdrReportService implements JdrReportCollector, Service<JdrReportCo
         PyObject x = interpreter.get("x");
         log.info("Python 2+2 = " + x);
 
+        interpreter.exec("import hw");
+        interpreter.exec("hw.hello()");
+
+
         return new JdrReport(123456);
     }
 

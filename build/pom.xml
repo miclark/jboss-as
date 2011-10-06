@@ -790,6 +790,11 @@
 
         <dependency>
             <groupId>org.jboss.as</groupId>
+            <artifactId>jboss-as-sos</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.as</groupId>
             <artifactId>jboss-as-remoting</artifactId>
         </dependency>
 

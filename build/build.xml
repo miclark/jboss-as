@@ -520,6 +520,7 @@
 
         <module-def name="org.jboss.as.jdr">
             <maven-resource group="org.jboss.as" artifact="jboss-as-jdr"/>
+            <maven-resource group="org.jboss.as" artifact="jboss-as-sos"/>
         </module-def>
 
         <module-def name="org.jboss.as.jmx">

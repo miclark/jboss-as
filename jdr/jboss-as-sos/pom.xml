@@ -28,17 +28,41 @@
 
     <parent>
         <groupId>org.jboss.as</groupId>
-        <artifactId>jboss-as-parent</artifactId>
+        <artifactId>jdr</artifactId>
         <version>7.1.0.Alpha2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jdr</artifactId>
-    <packaging>pom</packaging>
+    <groupId>org.jboss.as</groupId>
+    <artifactId>jboss-as-sos</artifactId>
+    <version>7.1.0.Alpha2-SNAPSHOT</version>
 
-    <name>JBoss Application Server: JBoss Diagnostic Reporter</name>
-    
-    <modules>
-        <module>jboss-as-sos</module>
-        <module>jboss-as-jdr</module>
-    </modules>
+    <name>JBoss Application Server: sosreport scripts</name>
+<!--
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>assemble</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>assembly.xml</descriptor>
+                            </descriptors>
+                            <finalName>scripts</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <outputDirectory>target/</outputDirectory>
+                            <workDirectory>target/assembly/work</workDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    -->
 </project>
