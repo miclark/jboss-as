@@ -42,8 +42,7 @@ import org.python.core.PyInteger;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.net.URL;
 import java.security.AccessController;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -100,7 +99,7 @@ public class JdrReportService implements JdrReportCollector, Service<JdrReportCo
         // into a PyObject.
         PyObject x = interpreter.get("x");
         log.info("Python 2+2 = " + x);
-
+/*
         log.info("Location of py script: " + this.getClass().getClassLoader().getResource("hw.py").toString());
         InputStream is = this.getClass().getClassLoader().getResourceAsStream("hw.py");
         interpreter.execfile(is);
@@ -109,8 +108,14 @@ public class JdrReportService implements JdrReportCollector, Service<JdrReportCo
         } catch (IOException e) {
             log.warn("Oops, couldn't open my scripts!", e);
         }
+*/
+        URL pyURL = this.getClass().getClassLoader().getResource("hw.py");
+        String pyLocation = pyURL.getPath().split(":")[1].split("!")[0];
+        log.info("Location of py script: " + pyLocation);
 
-        interpreter.exec("hello()");
+        interpreter.exec("sys.path.append(\"" + pyLocation + "\")");
+        interpreter.exec("import hw");
+        interpreter.exec("hw.hello()");
 
 
         return new JdrReport(123456);
