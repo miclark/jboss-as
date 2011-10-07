@@ -87,35 +87,13 @@ public class JdrReportService implements JdrReportCollector, Service<JdrReportCo
         // Do some simple python things as placeholder for
         // executing the jdr scripts.
         interpreter.exec("import sys");
-        interpreter.exec("print sys");
-        interpreter.exec("print sys.path");
-
-        // Set variable values within the PythonInterpreter instance
-        interpreter.set("a", new PyInteger(42));
-        interpreter.exec("print a");
-        interpreter.exec("x = 2+2");
-
-        // Obtain the value of an object from the PythonInterpreter and store it
-        // into a PyObject.
-        PyObject x = interpreter.get("x");
-        log.info("Python 2+2 = " + x);
-/*
-        log.info("Location of py script: " + this.getClass().getClassLoader().getResource("hw.py").toString());
-        InputStream is = this.getClass().getClassLoader().getResourceAsStream("hw.py");
-        interpreter.execfile(is);
-        try {
-            is.close();
-        } catch (IOException e) {
-            log.warn("Oops, couldn't open my scripts!", e);
-        }
-*/
         URL pyURL = this.getClass().getClassLoader().getResource("hw.py");
         String pyLocation = pyURL.getPath().split(":")[1].split("!")[0];
         log.info("Location of py script: " + pyLocation);
 
         interpreter.exec("sys.path.append(\"" + pyLocation + "\")");
-        interpreter.exec("import hw");
-        interpreter.exec("hw.hello()");
+        interpreter.exec("from sos.sosreport import main");
+        interpreter.exec("main(['-l'])");
 
 
         return new JdrReport(123456);
