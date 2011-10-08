@@ -87,13 +87,25 @@ public class JdrReportService implements JdrReportCollector, Service<JdrReportCo
         // Do some simple python things as placeholder for
         // executing the jdr scripts.
         interpreter.exec("import sys");
-        URL pyURL = this.getClass().getClassLoader().getResource("hw.py");
+        interpreter.exec("import shlex");
+        URL pyURL = this.getClass().getClassLoader().getResource("sos");
+
+        log.info("pyURL = " + pyURL);
+
         String pyLocation = pyURL.getPath().split(":")[1].split("!")[0];
         log.info("Location of py script: " + pyLocation);
 
+        serverEnvironment = serverEnvironmentValue.getValue();
+        String homeDir = serverEnvironment.getHomeDir().getAbsolutePath();
+        String tempDir = serverEnvironment.getServerTempDir().getAbsolutePath();
+
+        log.info("homeDir = " + homeDir);
+        log.info("tempDir = " + tempDir);
+
         interpreter.exec("sys.path.append(\"" + pyLocation + "\")");
         interpreter.exec("from sos.sosreport import main");
-        interpreter.exec("main(['-l'])");
+        interpreter.exec("args = shlex.split('-k eap6.home=" + homeDir + " --tmp-dir=" + tempDir +" -o eap6 --batch --report --compression-type=zip')");
+        interpreter.exec("main(args)");
 
 
         return new JdrReport(123456);
