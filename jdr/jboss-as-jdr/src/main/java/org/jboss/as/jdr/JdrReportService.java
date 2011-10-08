@@ -104,7 +104,7 @@ public class JdrReportService implements JdrReportCollector, Service<JdrReportCo
 
         interpreter.exec("sys.path.append(\"" + pyLocation + "\")");
         interpreter.exec("from sos.sosreport import main");
-        interpreter.exec("args = shlex.split('-k eap6.home=" + homeDir + " --tmp-dir=" + tempDir +" -o eap6 --batch --report --compression-type=zip')");
+        interpreter.exec("args = shlex.split('-k eap6.home=" + homeDir + " --tmp-dir=" + tempDir +" -o eap6 --batch --report --compression-type=zip --silent')");
         interpreter.exec("main(args)");
 
 
