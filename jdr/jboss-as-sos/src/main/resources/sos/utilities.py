@@ -357,7 +357,6 @@ class ZipFileArchive(Archive):
             file_obj = self.zipfile.open(name)
             return file_obj
         finally:
-            print "HERE I IS"
             self.zipfile.close()
             self.zipfile = zipfile.ZipFile(self.name(), mode="a")
 
