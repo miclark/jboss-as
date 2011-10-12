@@ -30,7 +30,6 @@ import org.jboss.as.server.ServerEnvironment;
 import org.jboss.as.server.ServerEnvironmentService;
 import org.jboss.as.server.Services;
 import org.jboss.logging.Logger;
-import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
@@ -46,25 +45,12 @@ import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
-import java.io.IOException;
 import java.net.URL;
 import java.security.AccessController;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
-class ModelControllerClientProxy {
-
-    public ModelControllerClient client;
-
-    public ModelControllerClientProxy(ModelControllerClient client) {
-        this.client = client;
-    }
-
-    public ModelNode execute(ModelNode request) throws java.io.IOException {
-        return client.execute(request);
-    }
-}
 
 /**
  * Service that provides a {@link JdrReportCollector}.
