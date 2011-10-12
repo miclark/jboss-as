@@ -117,15 +117,21 @@ class EAP6(Plugin, IndependentPlugin):
     def query_api(self, url):
         try:
             return self.query_java(url)
-        except Exception, e:
+        except ImportError, e:
             return self.query_http(url)
 
     def query_java(self, url):
-        try:
-            raise Exception
-        except Exception, e:
-            pass
-            # throw exception to do http stuff
+        from org.jboss.dmr import ModelNode
+        import sos
+        request = ModelNode()
+        request.get("operation").set("read-resource");
+        url_parts = url.lstrip("/").split("/")
+        while url_parts:
+            key = url_parts.pop(0)
+            val = url_parts.pop(0)
+            request.get('address').add(key, val)
+        response = sos.controllerClient.execute(request)
+        return response.toJSONString(True)
 
     def query_http(self, url, postdata=None):
         try:
