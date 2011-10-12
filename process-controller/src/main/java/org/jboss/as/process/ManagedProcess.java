@@ -22,6 +22,9 @@
 
 package org.jboss.as.process;
 
+import static java.lang.Thread.holdsLock;
+import static org.jboss.as.process.ProcessMessages.MESSAGES;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -31,19 +34,20 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.as.process.protocol.StreamUtils;
 import org.jboss.logging.Logger;
-
-import static org.jboss.as.process.ProcessMessages.MESSAGES;
 
 /**
  * A managed process.
  *
  * @author <a href="mailto:david.lloyd@redhat.com">David M. Lloyd</a>
  * @author <a href="mailto:kabir.khan@jboss.com">Kabir Khan</a>
+ * @author Emanuel Muckenhuber
  */
 final class ManagedProcess {
 
@@ -56,34 +60,36 @@ final class ManagedProcess {
 
     private final ProcessController processController;
     private final byte[] authKey;
-    private final boolean isInitial;
+    private final boolean isPrivileged;
+    private final RespawnPolicy respawnPolicy;
 
     private OutputStream stdin;
     private State state = State.DOWN;
     private Process process;
     private boolean shutdown;
+    private boolean stopRequested = false;
+    private final AtomicInteger respawnCount = new AtomicInteger(0);
 
     public byte[] getAuthKey() {
         return authKey;
     }
 
-    public boolean isInitial() {
-        return isInitial;
+    public boolean isPrivileged() {
+        return isPrivileged;
     }
 
     public boolean isRunning() {
-        synchronized (lock) {
-            return state == State.STARTED;
-        }
+        return state == State.STARTED;
     }
 
     enum State {
         DOWN,
         STARTED,
         STOPPING,
+        ;
     }
 
-    ManagedProcess(final String processName, final List<String> command, final Map<String, String> env, final String workingDirectory, final Object lock, final ProcessController controller, final byte[] authKey, final boolean initial) {
+    ManagedProcess(final String processName, final List<String> command, final Map<String, String> env, final String workingDirectory, final Object lock, final ProcessController controller, final byte[] authKey, final boolean privileged, final boolean respawn) {
         if (processName == null) {
             throw MESSAGES.nullVar("processName");
         }
@@ -115,8 +121,17 @@ final class ManagedProcess {
         this.lock = lock;
         processController = controller;
         this.authKey = authKey;
-        isInitial = initial;
+        isPrivileged = privileged;
+        respawnPolicy = respawn ? RespawnPolicy.RESPAWN : RespawnPolicy.NONE;
         log = Logger.getMessageLogger(ProcessLogger.class, "org.jboss.as.process." + processName + ".status");
+    }
+
+    int incrementAndGetRespawnCount() {
+        return respawnCount.incrementAndGet();
+    }
+
+    int resetRespawnCount() {
+        return respawnCount.getAndSet(0);
     }
 
     public String getProcessName() {
@@ -129,6 +144,7 @@ final class ManagedProcess {
                 log.debugf("Attempted to start already-running process '%s'", processName);
                 return;
             }
+            resetRespawnCount();
             doStart(false);
         }
     }
@@ -142,22 +158,25 @@ final class ManagedProcess {
         }
     }
 
-
-    public void reconnect(String hostName, int port) {
+    public void reconnect(String hostName, int port, boolean managementSubsystemEndpoint) {
         try {
             StreamUtils.writeUTFZBytes(stdin, hostName);
             StreamUtils.writeInt(stdin, port);
+            StreamUtils.writeBoolean(stdin, managementSubsystemEndpoint);
             stdin.flush();
         } catch (IOException e) {
             log.failedToSendReconnect(e, processName);
         }
     }
 
-    private void doStart(boolean restart) {
+    void doStart(boolean restart) {
         // Call under lock
-        if (restart && isInitial() && !command.contains(CommandLineConstants.RESTART_HOST_CONTROLLER)){
+        assert holdsLock(lock);
+        stopRequested = false;
+        final List<String> command = new ArrayList<String>(this.command);
+        if(restart) {
             //Add the restart flag to the HC process if we are respawning it
-            command.add(CommandLineConstants.RESTART_HOST_CONTROLLER);
+            command.add(CommandLineConstants.PROCESS_RESTARTED);
         }
         log.startingProcess(processName);
         log.debugf("Process name='%s' command='%s' workingDirectory='%s'", processName, command, workingDirectory);
@@ -204,6 +223,7 @@ final class ManagedProcess {
                 return;
             }
             log.stoppingProcess(processName);
+            stopRequested = true;
             StreamUtils.safeClose(stdin);
             state = State.STOPPING;
         }
@@ -211,12 +231,26 @@ final class ManagedProcess {
 
     public void shutdown() {
         synchronized (lock) {
+            if(shutdown) {
+                return;
+            }
             shutdown = true;
             if (state == State.STARTED) {
                 log.stoppingProcess(processName);
+                stopRequested = true;
                 StreamUtils.safeClose(stdin);
             }
             state = State.STOPPING;
+        }
+    }
+
+    void respawn() {
+        synchronized (lock) {
+            if (state != State.DOWN) {
+                log.debugf("Attempted to respawn already-running process '%s'", processName);
+                return;
+            }
+            doStart(true);
         }
     }
 
@@ -240,12 +274,17 @@ final class ManagedProcess {
             } catch (InterruptedException e) {
                 // ignore
             }
+            boolean respawn = false;
+            int respawnCount = 0;
             synchronized (lock) {
+
                 final long endTime = System.currentTimeMillis();
+                processController.processStopped(processName, endTime - startTime);
                 state = State.DOWN;
+
                 if (shutdown) {
                     processController.removeProcess(processName);
-                } else if (isInitial() && exitCode == 99) {
+                } else if (isPrivileged() && exitCode == 99) {
                     // Host Controller abort
                     processController.removeProcess(processName);
                     new Thread(new Runnable() {
@@ -255,13 +294,15 @@ final class ManagedProcess {
                         }
                     }).start();
                 } else {
-                    processController.processStopped(processName, endTime - startTime);
-                    if (isInitial()) {
-                        // we must respawn the initial process
-                        doStart(true);
-                        // TODO: throttle policy
+                    if(! stopRequested) {
+                        respawn = true;
+                        respawnCount = ManagedProcess.this.incrementAndGetRespawnCount();
                     }
                 }
+                stopRequested = false;
+            }
+            if(respawn) {
+                respawnPolicy.respawn(respawnCount, ManagedProcess.this);
             }
         }
     }

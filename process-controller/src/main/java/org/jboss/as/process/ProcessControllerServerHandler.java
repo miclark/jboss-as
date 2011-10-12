@@ -23,10 +23,7 @@
 package org.jboss.as.process;
 
 import static org.jboss.as.process.ProcessLogger.SERVER_LOGGER;
-import org.jboss.as.process.protocol.Connection;
-import org.jboss.as.process.protocol.ConnectionHandler;
-import org.jboss.as.process.protocol.MessageHandler;
-import org.jboss.as.process.protocol.StreamUtils;
+import static org.jboss.as.process.protocol.StreamUtils.readBoolean;
 import static org.jboss.as.process.protocol.StreamUtils.readFully;
 import static org.jboss.as.process.protocol.StreamUtils.readInt;
 import static org.jboss.as.process.protocol.StreamUtils.readUTFZBytes;
@@ -38,6 +35,11 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.jboss.as.process.protocol.Connection;
+import org.jboss.as.process.protocol.ConnectionHandler;
+import org.jboss.as.process.protocol.MessageHandler;
+import org.jboss.as.process.protocol.StreamUtils;
 
 /**
  * @author <a href="mailto:david.lloyd@redhat.com">David M. Lloyd</a>
@@ -85,7 +87,7 @@ public final class ProcessControllerServerHandler implements ConnectionHandler {
                 return;
             }
             SERVER_LOGGER.tracef("Received authentic connection from %s", connection.getPeerAddress());
-            connection.setMessageHandler(new ConnectedMessageHandler(processController, process.isInitial()));
+            connection.setMessageHandler(new ConnectedMessageHandler(processController, process.isPrivileged()));
             processController.addManagedConnection(connection);
             dataStream.close();
         }
@@ -110,13 +112,13 @@ public final class ProcessControllerServerHandler implements ConnectionHandler {
 
         private static class ConnectedMessageHandler implements MessageHandler {
 
-            private final boolean isHostController;
+            private final boolean isPrivileged;
 
             private final ProcessController processController;
 
             public ConnectedMessageHandler(final ProcessController processController, final boolean isHostController) {
                 this.processController = processController;
-                this.isHostController = isHostController;
+                this.isPrivileged = isHostController;
             }
 
             public void handleMessage(final Connection connection, final InputStream dataStream) throws IOException {
@@ -126,7 +128,7 @@ public final class ProcessControllerServerHandler implements ConnectionHandler {
                     switch (cmd) {
                         case Protocol.SEND_STDIN: {
                             // HostController only
-                            if (isHostController) {
+                            if (isPrivileged) {
                                 final String processName = readUTFZBytes(dataStream);
                                 SERVER_LOGGER.tracef("Received send_stdin for process %s", processName);
                                 processController.sendStdin(processName, dataStream);
@@ -137,7 +139,7 @@ public final class ProcessControllerServerHandler implements ConnectionHandler {
                             break;
                         }
                         case Protocol.ADD_PROCESS: {
-                            if (isHostController) {
+                            if (isPrivileged) {
                                 final String processName = readUTFZBytes(dataStream);
                                 final byte[] authKey = new byte[16];
                                 readFully(dataStream, authKey);
@@ -153,7 +155,7 @@ public final class ProcessControllerServerHandler implements ConnectionHandler {
                                 }
                                 final String workingDirectory = readUTFZBytes(dataStream);
                                 SERVER_LOGGER.tracef("Received add_process for process %s", processName);
-                                processController.addProcess(processName, Arrays.asList(command), env, workingDirectory, false);
+                                processController.addProcess(processName, Arrays.asList(command), env, workingDirectory, false, false);
                             } else {
                                 SERVER_LOGGER.tracef("Ignoring add_process message from untrusted source");
                             }
@@ -161,7 +163,7 @@ public final class ProcessControllerServerHandler implements ConnectionHandler {
                             break;
                         }
                         case Protocol.START_PROCESS: {
-                            if (isHostController) {
+                            if (isPrivileged) {
                                 final String processName = readUTFZBytes(dataStream);
                                 processController.startProcess(processName);
                                 SERVER_LOGGER.tracef("Received start_process for process %s", processName);
@@ -172,7 +174,7 @@ public final class ProcessControllerServerHandler implements ConnectionHandler {
                             break;
                         }
                         case Protocol.STOP_PROCESS: {
-                            if (isHostController) {
+                            if (isPrivileged) {
                                 final String processName = readUTFZBytes(dataStream);
                                 // HostController only
                                 processController.stopProcess(processName);
@@ -183,7 +185,7 @@ public final class ProcessControllerServerHandler implements ConnectionHandler {
                             break;
                         }
                         case Protocol.REMOVE_PROCESS: {
-                            if (isHostController) {
+                            if (isPrivileged) {
                                 final String processName = readUTFZBytes(dataStream);
                                 processController.removeProcess(processName);
                             } else {
@@ -193,7 +195,7 @@ public final class ProcessControllerServerHandler implements ConnectionHandler {
                             break;
                         }
                         case Protocol.REQUEST_PROCESS_INVENTORY: {
-                            if (isHostController) {
+                            if (isPrivileged) {
                                 processController.sendInventory();
                             } else {
                                 SERVER_LOGGER.tracef("Ignoring request_process_inventory message from untrusted source");
@@ -202,18 +204,19 @@ public final class ProcessControllerServerHandler implements ConnectionHandler {
                             break;
                         }
                         case Protocol.RECONNECT_PROCESS: {
-                            if (isHostController) {
+                            if (isPrivileged) {
                                 final String processName = readUTFZBytes(dataStream);
                                 final String hostName = readUTFZBytes(dataStream);
                                 final int port = readInt(dataStream);
-                                processController.sendReconnectProcess(processName, hostName, port);
+                                final boolean managementSubsystemEndpoint = readBoolean(dataStream);
+                                processController.sendReconnectProcess(processName, hostName, port, managementSubsystemEndpoint);
                             } else {
                                 SERVER_LOGGER.tracef("Ignoring reconnect_process message from untrusted source");
                             }
                             dataStream.close();
                             break;
                         } case Protocol.SHUTDOWN: {
-                            if (isHostController) {
+                            if (isPrivileged) {
                                 new Thread(new Runnable() {
                                     public void run() {
                                         processController.shutdown();
@@ -238,16 +241,19 @@ public final class ProcessControllerServerHandler implements ConnectionHandler {
 
             public void handleShutdown(final Connection connection) throws IOException {
                 SERVER_LOGGER.tracef("Received end-of-stream for connection");
+                processController.removeManagedConnection(connection);
                 connection.shutdownWrites();
             }
 
             public void handleFailure(final Connection connection, final IOException e) throws IOException {
                 SERVER_LOGGER.tracef(e, "Received failure of connection");
+                processController.removeManagedConnection(connection);
                 connection.close();
             }
 
             public void handleFinished(final Connection connection) throws IOException {
                 SERVER_LOGGER.tracef("Connection finished");
+                processController.removeManagedConnection(connection);
                 // nothing
             }
         }

@@ -22,6 +22,9 @@
 
 package org.jboss.as.process;
 
+import static org.jboss.as.process.ProcessLogger.ROOT_LOGGER;
+import static org.jboss.as.process.ProcessMessages.MESSAGES;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,18 +33,15 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.jboss.as.process.protocol.Connection;
 import org.jboss.as.process.protocol.ProtocolServer;
 import org.jboss.as.process.protocol.StreamUtils;
-
-import static org.jboss.as.process.ProcessLogger.ROOT_LOGGER;
-import static org.jboss.as.process.ProcessMessages.MESSAGES;
 
 /**
  * @author <a href="mailto:david.lloyd@redhat.com">David M. Lloyd</a>
@@ -54,14 +54,11 @@ public final class ProcessController {
      */
     private final Object lock = new Object();
 
+    private final Random rng;
+    private final ProtocolServer server;
     private final Map<String, ManagedProcess> processes = new HashMap<String, ManagedProcess>();
     private final Map<Key, ManagedProcess> processesByKey = new HashMap<Key, ManagedProcess>();
-
-    private final ProtocolServer server;
-
-    private final Random rng;
-
-    private final Set<Connection> managedConnections = new HashSet<Connection>();
+    private final Set<Connection> managedConnections = new CopyOnWriteArraySet<Connection>();
 
     private boolean shutdown;
 
@@ -79,19 +76,22 @@ public final class ProcessController {
         this.server = server;
     }
 
-    public void addManagedConnection(Connection connection) {
-        synchronized (lock) {
+    void addManagedConnection(final Connection connection) {
+        synchronized (lock)  {
+            if(shutdown) {
+                return;
+            }
             managedConnections.add(connection);
         }
     }
 
-    public void removeManagedConnection(Connection connection) {
+    void removeManagedConnection(final Connection connection) {
         synchronized (lock) {
             managedConnections.remove(connection);
         }
     }
 
-    public void addProcess(final String processName, final List<String> command, final Map<String, String> env, final String workingDirectory, final boolean isInitial) {
+    public void addProcess(final String processName, final List<String> command, final Map<String, String> env, final String workingDirectory, final boolean isPrivileged, final boolean respawn) {
         synchronized (lock) {
             for (String s : command) {
                 if (s == null) {
@@ -109,7 +109,7 @@ public final class ProcessController {
             }
             final byte[] authKey = new byte[16];
             rng.nextBytes(authKey);
-            final ManagedProcess process = new ManagedProcess(processName, command, env, workingDirectory, lock, this, authKey, isInitial);
+            final ManagedProcess process = new ManagedProcess(processName, command, env, workingDirectory, lock, this, authKey, isPrivileged, respawn);
             processes.put(processName, process);
             processesByKey.put(new Key(authKey), process);
             for (Connection connection : managedConnections) {
@@ -172,6 +172,7 @@ public final class ProcessController {
             }
             processes.remove(processName);
             processesByKey.remove(new Key(process.getAuthKey()));
+            processRemoved(processName);
             lock.notifyAll();
         }
     }
@@ -198,6 +199,11 @@ public final class ProcessController {
             }
             ROOT_LOGGER.shuttingDown();
             shutdown = true;
+
+            final ManagedProcess hc = processesByKey.get(Main.HOST_CONTROLLER_PROCESS_NAME);
+            if(hc != null && hc.isRunning()) {
+                hc.shutdown();
+            }
             for (ManagedProcess process : processes.values()) {
                 process.shutdown();
             }
@@ -259,6 +265,26 @@ public final class ProcessController {
         }
     }
 
+    void processRemoved(final String processName) {
+        synchronized (lock) {
+            for (Connection connection : managedConnections) {
+                try {
+                    final OutputStream os = connection.writeMessage();
+                    try {
+                        os.write(Protocol.PROCESS_REMOVED);
+                        StreamUtils.writeUTFZBytes(os, processName);
+                        os.close();
+                    } finally {
+                        StreamUtils.safeClose(os);
+                    }
+                } catch (IOException e) {
+                    ROOT_LOGGER.failedToWriteMessage("PROCESS_REMOVED", e);
+                    removeManagedConnection(connection);
+                }
+            }
+        }
+    }
+
     void sendInventory() {
         synchronized (lock) {
             for (Connection connection : managedConnections) {
@@ -278,14 +304,14 @@ public final class ProcessController {
                         StreamUtils.safeClose(os);
                     }
                 } catch (IOException e) {
-                    ROOT_LOGGER.failedToWriteMessage(" PROCESS_INVENTORY", e);
+                    ROOT_LOGGER.failedToWriteMessage("PROCESS_INVENTORY", e);
                     removeManagedConnection(connection);
                 }
             }
         }
     }
 
-    public void sendReconnectProcess(String processName, String hostName, int port) {
+    public void sendReconnectProcess(String processName, String hostName, int port, boolean managementSubsystemEndpoint) {
         synchronized (lock) {
             ManagedProcess process = processes.get(processName);
             if (process == null) {
@@ -293,11 +319,9 @@ public final class ProcessController {
                 // ignore
                 return;
             }
-            process.reconnect(hostName, port);
+            process.reconnect(hostName, port, managementSubsystemEndpoint);
         }
     }
-
-
 
     public ProtocolServer getServer() {
         return server;

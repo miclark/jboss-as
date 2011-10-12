@@ -31,6 +31,7 @@ import org.jboss.as.controller.persistence.ConfigurationPersister;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.dmr.ModelNode;
+import org.jboss.logging.Logger;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceContainer;
 import org.jboss.msc.service.ServiceController;
@@ -45,6 +46,53 @@ import org.jboss.msc.service.StopContext;
  * @author <a href="mailto:david.lloyd@redhat.com">David M. Lloyd</a>
  */
 public abstract class AbstractControllerService implements Service<ModelController> {
+
+    private static final Logger logger = Logger.getLogger(AbstractControllerService.class);
+
+    /**
+     * Name of the system property to set to control the stack size for the thread used to process boot operations.
+     * The boot sequence can have a very deep stack, so if needed setting this property can be used to create a larger
+     * memory area for storing data on the stack.
+     *
+     * @see #DEFAULT_BOOT_STACK_SIZE
+     */
+    public static final String BOOT_STACK_SIZE_PROPERTY = "jboss.boot.thread.stack.size";
+
+    /**
+     * The default stack size for the thread used to process boot operations.
+     *
+     * @see #BOOT_STACK_SIZE_PROPERTY
+     */
+    public static final int DEFAULT_BOOT_STACK_SIZE = 2 * 1024 * 1024;
+
+    private static int getBootStackSize() {
+        String prop = SecurityActions.getSystemProperty(BOOT_STACK_SIZE_PROPERTY);
+        if (prop == null) {
+            return  DEFAULT_BOOT_STACK_SIZE;
+        } else {
+            int base = 1;
+            String multiple = prop;
+            int lastIdx = prop.length() - 1;
+            if (lastIdx > 0) {
+                char last = prop.charAt(lastIdx);
+                if ('k' == last || 'K' == last) {
+                    multiple = prop.substring(0, lastIdx);
+                    base = 1024;
+                } else if ('m' == last || 'M' == last) {
+                    multiple = prop.substring(0, lastIdx);
+                    base = 1024 * 1024;
+                }
+            }
+            try {
+                return Integer.parseInt(multiple) * base;
+            } catch (NumberFormatException e) {
+                logger.error(String.format("Invalid value %s for system property %s -- using default value [%d]",
+                        prop, BOOT_STACK_SIZE_PROPERTY, DEFAULT_BOOT_STACK_SIZE));
+                return DEFAULT_BOOT_STACK_SIZE;
+            }
+        }
+    }
+
     private final OperationContext.Type controllerType;
     private final ConfigurationPersister configurationPersister;
     private final DescriptionProvider rootDescriptionProvider;
@@ -55,10 +103,10 @@ public abstract class AbstractControllerService implements Service<ModelControll
     /**
      * Construct a new instance.
      *
-     * @param controllerType the controller type for the new controller
-     * @param configurationPersister the configuration persister
+     * @param controllerType          the controller type for the new controller
+     * @param configurationPersister  the configuration persister
      * @param rootDescriptionProvider the root description provider
-     * @param prepareStep the prepare step to prepend to operation execution
+     * @param prepareStep             the prepare step to prepend to operation execution
      */
     protected AbstractControllerService(final OperationContext.Type controllerType, final ConfigurationPersister configurationPersister,
                                         final ControlledProcessState processState, final DescriptionProvider rootDescriptionProvider, final OperationStepHandler prepareStep) {
@@ -72,33 +120,49 @@ public abstract class AbstractControllerService implements Service<ModelControll
     public void start(final StartContext context) throws StartException {
         final ServiceController<?> serviceController = context.getController();
         final ServiceContainer container = serviceController.getServiceContainer();
-        final ModelControllerImpl controller = new ModelControllerImpl(container, context.getChildTarget(), ManagementResourceRegistration.Factory.create(rootDescriptionProvider), new ContainerStateMonitor(container, serviceController), configurationPersister, controllerType, prepareStep, processState);
+        final ServiceTarget target = context.getChildTarget();
+        final ModelControllerImpl controller = new ModelControllerImpl(container, target, ManagementResourceRegistration.Factory.create(rootDescriptionProvider), new ContainerStateMonitor(container, serviceController), configurationPersister, controllerType, prepareStep, processState);
         initModel(controller.getRootResource(), controller.getRootRegistration());
         this.controller = controller;
 
-        final ServiceTarget target = context.getChildTarget();
-        new Thread(new Runnable() {
+        final long bootStackSize = getBootStackSize();
+        final Thread bootThread = new Thread(null, new Runnable() {
             public void run() {
                 try {
-                    boot(new BootContext() {
-                        public ServiceTarget getServiceTarget() {
-                            return target;
-                        }
-                    });
-                } catch (ConfigurationPersistenceException e) {
-                    throw new RuntimeException(e);
-                } finally {
-                    processState.setRunning();
+                    try {
+                        boot(new BootContext() {
+                            public ServiceTarget getServiceTarget() {
+                                return target;
+                            }
+                        });
+                    } catch (ConfigurationPersistenceException e) {
+                        throw new RuntimeException(e);
+                    } finally {
+                        processState.setRunning();
+                    }
+                } catch (Throwable t) {
+                    container.shutdown();
+                    if (t instanceof StackOverflowError) {
+                        logger.errorf(t, "Error booting the container due to insufficient stack space for the thread used to " +
+                                "execute boot operations. The thread was configured with a stack size of [%d]. Setting " +
+                                "system property %s to a value higher than [%d] may resolve this problem.",
+                                bootStackSize, BOOT_STACK_SIZE_PROPERTY, bootStackSize);
+                    } else {
+                        logger.error("Error booting the container", t);
+                    }
                 }
+
             }
-        }, "Controller Boot Thread").start();
+        }, "Controller Boot Thread", bootStackSize);
+        bootThread.start();
     }
 
     /**
      * Boot the controller.  Called during service start.
      *
      * @param context the boot context
-     * @throws ConfigurationPersistenceException if the configuration failed to be loaded
+     * @throws ConfigurationPersistenceException
+     *          if the configuration failed to be loaded
      */
     protected void boot(final BootContext context) throws ConfigurationPersistenceException {
         boot(configurationPersister.load());
