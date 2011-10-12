@@ -23,7 +23,7 @@
 package org.jboss.as.jdr;
 
 /**
- * An event (e.g. some sort of failure condition) that triggers a {@link JdrReport}.
+ * An event (e.g. specific log message) that triggers a {@link JdrReport}.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */

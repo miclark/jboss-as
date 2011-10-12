@@ -40,5 +40,5 @@ public class JdrReportRequest {
         return triggerEvent;
     }
 
-    // TODO other information that drives the collection
+    // TODO Created logging trigger event.
 }

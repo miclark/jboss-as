@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Names of attributes used in the jdr extension's schema.
+ * Names of attributes used in the JDR extension's schema.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */

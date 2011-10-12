@@ -29,17 +29,30 @@ package org.jboss.as.jdr;
  * @author Mike M. Clark
  */
 public class JdrReport {
-
-    private final long timestamp;
+    private long startTimestamp;
+    private String reportLocation;
 
     public JdrReport(long timestamp) {
-        this.timestamp = timestamp;
+        this.startTimestamp = timestamp;
     }
 
-    /** Gets the timestamp of the collection. */
-    public long getTimestamp() {
-        return timestamp;
+    /**
+     * Indicates the time the JDR report collection was initiated.
+     */
+    public long getStartTimestamp() {
+        return startTimestamp;
     }
 
-    // TODO flesh this out
+    /**
+     * Indicates the location of the generated JDR report.
+     *
+     * @return location of report.
+     */
+    public String getReportLocation() {
+        return reportLocation;
+    }
+
+    public void setReportLocation(String reportLocation) {
+        this.reportLocation = reportLocation;
+    }
 }

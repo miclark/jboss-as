@@ -38,8 +38,6 @@ import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
 import org.jboss.threads.JBossThreadFactory;
-import org.python.core.PyInteger;
-import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
 import java.net.URL;
@@ -52,6 +50,8 @@ import java.util.concurrent.ThreadFactory;
  * Service that provides a {@link JdrReportCollector}.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
+ * @author Mike M. Clark
+ * @author Jesse Jaggars
  */
 public class JdrReportService implements JdrReportCollector, Service<JdrReportCollector> {
 
