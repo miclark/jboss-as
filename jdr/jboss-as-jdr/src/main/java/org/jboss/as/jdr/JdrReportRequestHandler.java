@@ -70,11 +70,17 @@ public class JdrReportRequestHandler implements OperationStepHandler, Descriptio
                 // TODO set any properties on 'request' that can be provided by caller as params to 'operation'
 
 
-                JdrReport collection = jdrCollector.collect(request);
+                JdrReport report = jdrCollector.collect(request);
                 ModelNode response = context.getResult();
                 // TODO perhaps stick some metadata from the collection into the response to help the client find
                 // the jdr report. Following is an example
-                response.get("start-timestamp").set(collection.getStartTimestamp());
+                if (report.getStartTime() != null) {
+                    response.get("start-time").set(report.getStartTime().toString());
+                }
+                if (report.getEndTime() != null) {
+                    response.get("end-time").set(report.getEndTime().toString());
+                }
+                response.get("report-location").set(report.getLocation());
 
                 context.completeStep();
             }

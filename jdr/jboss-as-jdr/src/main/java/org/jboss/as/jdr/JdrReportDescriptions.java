@@ -78,10 +78,13 @@ public class JdrReportDescriptions {
         result.get(OPERATION_NAME).set(JdrReportRequestHandler.OPERATION_NAME);
         result.get(DESCRIPTION).set(bundle.getString("jdr.request"));
         result.get(REQUEST_PROPERTIES).setEmptyObject(); // TODO add any request parameters
-        result.get(REPLY_PROPERTIES, "start-timestamp", DESCRIPTION).set(bundle.getString("jdr.collection.starttimestamp"));
-        result.get(REPLY_PROPERTIES, "start-timestamp", TYPE).set(ModelType.LONG);
-        result.get(REPLY_PROPERTIES, "start-timestamp", REQUIRED).set(true);
-        result.get(REPLY_PROPERTIES, "report-location", DESCRIPTION).set(bundle.getString("jdr.collection.reportlocation"));
+        result.get(REPLY_PROPERTIES, "start-time", DESCRIPTION).set(bundle.getString("jdr.report.starttimestamp"));
+        result.get(REPLY_PROPERTIES, "start-time", TYPE).set(ModelType.STRING);
+        result.get(REPLY_PROPERTIES, "start-time", REQUIRED).set(true);
+        result.get(REPLY_PROPERTIES, "end-time", DESCRIPTION).set(bundle.getString("jdr.report.starttimestamp"));
+        result.get(REPLY_PROPERTIES, "end-time", TYPE).set(ModelType.STRING);
+        result.get(REPLY_PROPERTIES, "end-time", REQUIRED).set(true);
+        result.get(REPLY_PROPERTIES, "report-location", DESCRIPTION).set(bundle.getString("jdr.report.reportlocation"));
         result.get(REPLY_PROPERTIES, "report-location", TYPE).set(ModelType.STRING);
         result.get(REPLY_PROPERTIES, "report-location", REQUIRED).set(false);
          // TODO add any other response details

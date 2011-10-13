@@ -22,7 +22,6 @@
 
 package org.jboss.as.jdr;
 
-import java.util.logging.Level;
 import org.jboss.as.controller.ModelController;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.client.ModelControllerClient;
@@ -39,13 +38,7 @@ import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
 import org.jboss.threads.JBossThreadFactory;
-import org.python.core.Py;
-import org.python.core.PyInteger;
-import org.python.core.PyObject;
-import org.python.core.PySystemState;
-import org.python.util.PythonInterpreter;
 
-import java.net.URL;
 import java.security.AccessController;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -82,49 +75,24 @@ public class JdrReportService implements JdrReportCollector, Service<JdrReportCo
     private ServerEnvironment serverEnvironment;
     private ModelControllerClient controllerClient;
 
+    /**
+     * Collect a JDR report when run outside the Application Server.
+     */
+    public JdrReport standaloneCollect() {
+        SosInterpreter interpreter = new SosInterpreter();
+        return interpreter.collect();
+    }
+
+    /**
+     * Collect a JDR report.
+     */
     public JdrReport collect(JdrReportRequest request) {
-        // Use the ServerEnvironment to find location of files, use the
-        // ModelControllerClient to query in-memory state
-        log.info("Collecting jdr.");
-
-        // Create an instance of the PythonInterpreter
-        PythonInterpreter interpreter = new PythonInterpreter();
-
-        // Do some simple python things as placeholder for
-        // executing the jdr scripts.
-        interpreter.exec("import sys");
-        interpreter.exec("import shlex");
-        URL pyURL = this.getClass().getClassLoader().getResource("sos");
-
-        log.info("pyURL = " + pyURL);
-
-        String pyLocation = pyURL.getPath().split(":")[1].split("!")[0];
-        log.info("Location of py script: " + pyLocation);
-
+        SosInterpreter interpreter = new SosInterpreter();
         serverEnvironment = serverEnvironmentValue.getValue();
-        String homeDir = serverEnvironment.getHomeDir().getAbsolutePath();
-        String tempDir = serverEnvironment.getServerTempDir().getAbsolutePath();
-
-        log.info("homeDir = " + homeDir);
-        log.info("tempDir = " + tempDir);
-
-        try {
-            interpreter.exec("sys.path.append(\"" + pyLocation + "\")");
-            interpreter.exec("import sos");
-            interpreter.set("controller_client_proxy",
-                    new ModelControllerClientProxy(controllerClient));
-            interpreter.exec("sos.controllerClient = controller_client_proxy");
-            interpreter.exec("from sos.sosreport import main");
-            interpreter.exec("args = shlex.split('-k eap6.home=" + homeDir + " --tmp-dir=" + tempDir +" -o eap6 --batch --report --compression-type=zip --silent')");
-            interpreter.exec("main(args)");
-            interpreter.cleanup();
-        } catch (Throwable t) {
-            Py.printException(t);
-            interpreter.cleanup();
-        }
-
-
-        return new JdrReport(123456);
+        interpreter.setJbossHomeDir(serverEnvironment.getHomeDir().getAbsolutePath());
+        interpreter.setReportLocationDir(serverEnvironment.getServerTempDir().getAbsolutePath());
+        interpreter.setControllerClient(controllerClient);
+        return interpreter.collect();
     }
 
     public void start(StartContext context) throws StartException {
