@@ -23,11 +23,16 @@
 package org.jboss.as.jdr;
 
 /**
- * TODO class javadoc.
+ * Used to create a JBoss Diagnostic Report (JDR).
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
+ * @author Mike M. Clark
  */
 public interface JdrReportCollector {
-
-    JdrReport collect(JdrReportRequest request);
+    /**
+     * Create a JDR report.
+     *
+     * @return information about the generated report.
+     */
+    JdrReport collect();
 }

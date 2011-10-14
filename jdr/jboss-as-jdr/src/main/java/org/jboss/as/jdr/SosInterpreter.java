@@ -36,7 +36,6 @@ import java.util.Date;
  * @author Mike M. Clark
  */
 public class SosInterpreter {
-
     private static final Logger log = Logger.getLogger(JdrReportService.class);
 
     private String jbossHomeDir = System.getProperty("jboss.home.dir");
@@ -44,11 +43,6 @@ public class SosInterpreter {
     private ModelControllerClient controllerClient = null;
 
     public JdrReport collect() {
-        JdrReportRequest request = null;
-        return collect(null);
-    }
-
-    public JdrReport collect(JdrReportRequest request) {
         log.info("Collecting jdr.");
         Date startTime = new Date();
 

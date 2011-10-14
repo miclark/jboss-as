@@ -29,8 +29,18 @@ package org.jboss.as.jdr;
  */
 public class CommandLineMain {
 
+    /**
+     * Creates a JBoss Diagnostic Reporter (JDR) Report. A JDR report response
+     * is printed to <code>System.out</code>.
+     *
+     * @param args ignored
+     */
     public static void main(String[] args) {
         JdrReportService reportService = new JdrReportService();
-        reportService.standaloneCollect();
+        JdrReport response = reportService.standaloneCollect();
+
+        System.out.println("JDR started: " + response.getStartTime().toString());
+        System.out.println("JDR ended: " + response.getEndTime().toString());
+        System.out.println("JDR location: " + response.getLocation());
     }
 }

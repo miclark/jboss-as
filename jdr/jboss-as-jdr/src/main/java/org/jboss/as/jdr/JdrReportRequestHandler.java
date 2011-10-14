@@ -66,11 +66,7 @@ public class JdrReportRequestHandler implements OperationStepHandler, Descriptio
                 ServiceRegistry registry = context.getServiceRegistry(false);
                 JdrReportCollector jdrCollector = JdrReportCollector.class.cast(registry.getRequiredService(JdrReportService.SERVICE_NAME).getValue());
 
-                JdrReportRequest request = new JdrReportRequest(null);
-                // TODO set any properties on 'request' that can be provided by caller as params to 'operation'
-
-
-                JdrReport report = jdrCollector.collect(request);
+                JdrReport report = jdrCollector.collect();
                 ModelNode response = context.getResult();
                 // TODO perhaps stick some metadata from the collection into the response to help the client find
                 // the jdr report. Following is an example

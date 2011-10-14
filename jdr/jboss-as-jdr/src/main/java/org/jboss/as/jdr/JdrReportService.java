@@ -86,7 +86,7 @@ public class JdrReportService implements JdrReportCollector, Service<JdrReportCo
     /**
      * Collect a JDR report.
      */
-    public JdrReport collect(JdrReportRequest request) {
+    public JdrReport collect() {
         SosInterpreter interpreter = new SosInterpreter();
         serverEnvironment = serverEnvironmentValue.getValue();
         interpreter.setJbossHomeDir(serverEnvironment.getHomeDir().getAbsolutePath());
