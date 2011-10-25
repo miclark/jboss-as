@@ -1,0 +1,135 @@
+Add schema - move to docs
+Check on static INSTANCE and concurrancy.
+Create CommandLine class
+move module stuff under build directory
+add module-def to top level pom.xml
+add script jar
+
+EAP 5 MBean info to reproduce:
+
+- jboss.system:type=ServerInfo
+  - JavaVersion
+  - OSVersion
+  - JavaVendor
+  - TotalMemory
+  - ActiveThreadGroupCount
+  - OSName
+  - FreeMemory
+  - HostName
+  - JavaVMVersion
+  - JavaVMVendor
+  - JavaVMName
+  - invoke listMemoryPools true
+  - invoke listThreadCpuUtilization
+  - invoke listThreadDump
+
+- jboss.system:type=ServerConfig
+  - SeverDataDir
+  - ExitOnShutdown
+  - ServerLogDir
+  - CommonLibraryURL
+  - ServerconfigURL
+  - HomeURL
+  - ServerTempDeployDir
+  - RequireJBossURLStreamHandlerFactory
+  - PlatformMBeanServer
+  - ServerNativeDir
+  - ServerTempDir
+  - ServerHomeUrl
+  - ServerName
+  - RootDeploymentFilename
+  - PatchURL
+  - BlockingShutdown
+  - SpecificationVersion
+  - ServerHomeDir
+  - ServerLibraryURL
+  - CommonBaseURL
+  - ServerBaseDir
+  - LibraryURL
+  - ServerBaseURL
+  - HomeDir
+  
+- jboss.ws:service=ServerConfig
+  - ServerDataDir
+  - ImplementationTitle
+  - WebServicePort
+  - WebServiceHost
+  - ImplementationVersion
+  - ModifySOAPAddress
+  - ServerTempDir
+  - WebServiceSecurePort
+  - HomeDir
+
+- jboss.system:service=Logging,type=Log4jService
+  - Name
+  - State
+  - StateString
+  - ConfigurationURL
+  - CatchSystemErr
+  - CatchSystemOut
+  - Log4JQuiteMode
+  - RefreshPeriod
+  - DefaultJBossServerLogThreshold
+
+- jboss:name=SystemProperties,type=Service 
+  - invoke showAll
+
+- jboss:service=JNDIView
+  - invoke list true
+
+- JMImplementation:type=MBeanServerDelegate
+  - ImplementationVendor
+  - SpecificationVendor
+  - ImplementationVersion
+  - MBeanServerId
+  - SpecificationVersion
+  - SpecificationName
+  - ImplementatinName
+
+- jboss.messaging:service=ServerPeer
+  - PostOffice
+  - JMSUserManager
+  - Instance
+  - JMSVersion
+  - JMSMajorVersion
+  - JMSMinorVersion
+  - JMSProviderName
+  - ProviderVersion
+  - ProviderMajorVersion
+  - ProviderMinorVersion
+  - Destinations
+  - MessageCounters
+  - MessageStatistics
+  - DefaultDLQ
+  - DefaultExpiryQueue
+  - ServerPeerID
+  - DefaultQueueJNDIContext
+  - DefaultTopicJNDIContext
+  - ServerAopConfig
+  - ClientAopConfig
+  - SecurityStore
+  - DefaultMaxDeliveryAttempts
+  - FailoverStartTimeout
+  - FailoverCompleteTimeout
+  - DefaultRedeliveryDelay
+  - MessageCounterSamplePeriod
+  - ClusterPullConnectionFactoryName
+  - DefaultPreserveOrdering
+  - RecoverDeliveriesTimeout
+  - DefaultMessageCounterHistoryDayLimit
+  - SupportsFailover
+  - StrictTck
+  - EnableMessageCounters
+  - SuckerConnectionRetryTimes
+  - SuckerConnectionRetryInterval
+  - SupportsTxAge
+  - invoke listMessageCountersAsHTML
+  - invoke listAllPreparedTransactions
+  - invoke showActiveClientsAsHTML
+
+- jboss.vfs:service=VFSCacheStatistics
+  - invoke listCachedContexts
+
+twiddle commands:
+- serverinfo -c
+- serverinfo -l
