@@ -6,7 +6,6 @@ import fnmatch
 import shlex
 import subprocess
 import string
-import grp, pwd
 import urllib2
 
 from sos.plugins import Plugin, IndependentPlugin
@@ -160,10 +159,6 @@ class EAP6(Plugin, IndependentPlugin):
         return sos.controllerClient.execute(request).toJSONString(True)
 
     def query_http(self, request_obj, postdata=None):
-        try:
-            import json
-        except ImportError:
-            import simplejson as json
         host_port = self.getOption('address')
         username = self.getOption('user')
         password = self.getOption('pass')
@@ -204,7 +199,7 @@ class EAP6(Plugin, IndependentPlugin):
 
         try:
             resp = opener.open(req)
-            return json.loads(resp.read())
+            resp.read()
         except Exception, e:
             self.addAlert("Could not query url: %s; error: %s" % (uri, e))
 
@@ -213,15 +208,13 @@ class EAP6(Plugin, IndependentPlugin):
         This function co-locates calls to the management api that gather
         information from a running system.
         """
-        import pprint
-
         for caller, outfile in [
                 (Request(resource="/core-service/platform-mbean/type/threading",
                         operation="dump-all-threads",
-                        parameters={"locked-synchronizers": "true", "locked-monitors": "true"}), "threaddump.txt"),
-                (Request(resource="/", parameters={"recursive": "true"}), "configuration.txt"),
+                        parameters={"locked-synchronizers": "true", "locked-monitors": "true"}), "threaddump.json"),
+                (Request(resource="/", parameters={"recursive": "true"}), "configuration.json"),
                 ]:
-            self.addStringAsFile(pprint.pformat(self.query(caller)), filename=outfile)
+            self.addStringAsFile(self.query(caller), filename=outfile)
 
     def __getFiles(self, configDirAry):
         """

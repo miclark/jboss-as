@@ -47,12 +47,14 @@ from itertools import izip
 import textwrap
 import tempfile
 
+import subprocess
+import shlex
+
 from sos import _sos as _
 from sos import __version__
 import sos.policies
 from sos.utilities import TarFileArchive, ZipFileArchive, compress
 from sos.reporting import Report, Section, Command, CopiedFile, CreatedFile, Alert, Note, PlainTextReport
-
 if os.path.isfile('/etc/fedora-release'):
     __distro__ = 'Fedora'
 else:
@@ -296,13 +298,13 @@ No changes will be made to your system.
         except Exception:
             pass # not available in java, but we don't care
 
-        self._is_root = (os.getuid() == 0)
 
         self.opts, self.args = parse_options(opts)
         self.tempfile_util = TempFileUtil(tmp_dir=self.opts.tmp_dir)
         self._set_debug()
         self._read_config()
         self.policy = sos.policies.load()
+        self._is_root = self.policy.is_root()
         self._set_directories()
         self._setup_logging()
         self.policy.setCommons(self.get_commons())
@@ -311,7 +313,6 @@ No changes will be made to your system.
         self._set_tunables()
         self._check_for_unknown_plugins()
         self._set_plugin_options()
-
 
     def print_header(self):
         self.ui_log.info("\n%s\n" % _("sosreport (version %s)" % (__version__,)))
@@ -610,7 +611,7 @@ No changes will be made to your system.
                                       self.opts.enableplugins):
             plugin_name = plugin.split(".")[0]
             if not plugin_name in self.plugin_names:
-                self.soslog.error('a non-existing plugin (%s) was specified in the '
+                self.soslog.fatal('a non-existing plugin (%s) was specified in the '
                              'command line' % (plugin_name))
                 self._exit(1)
 
@@ -622,7 +623,7 @@ No changes will be made to your system.
 
     def list_plugins(self):
         if not self.loaded_plugins and not self.skipped_plugins:
-            self.soslog.error(_("no valid plugins found"))
+            self.soslog.fatal(_("no valid plugins found"))
             self._exit(1)
 
         if self.loaded_plugins:
@@ -726,6 +727,8 @@ No changes will be made to your system.
             self.policy.preWork()
             self._set_archive()
         except Exception, e:
+            import traceback
+            traceback.print_exc(e)
             self.ui_log.info(e)
             self._exit(0)
 
