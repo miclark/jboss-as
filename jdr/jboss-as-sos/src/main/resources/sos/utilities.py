@@ -38,8 +38,6 @@ try:
 except ImportError:
     from StringIO import StringIO
 import time
-import pwd
-import grp
 
 try:
     import hashlib as md5
@@ -92,13 +90,27 @@ class DirTree(object):
         else:
             return '%d' % n
 
+    def _get_user(self, stats):
+        try:
+            import pwd
+            return pwd.getpwuid(stats.st_uid)[0]
+        except ImportError:
+            return str(stats.st_uid)
+
+    def __get_group(self, stats):
+        try:
+            import grp
+            return grp.getgrgid(stats.st_gid)[0]
+        except ImportError:
+            return str(stats.st_uid)
+
     def _format(self, path):
         """Conditionally adds detail to paths"""
         stats = os.stat(path)
         details = {
                 "filename": os.path.basename(path),
-                "user": pwd.getpwuid(stats.st_uid)[0],
-                "group": grp.getgrgid(stats.st_gid)[0],
+                "user": self._get_user(stats),
+                "group": self._get_group(stats),
                 "filesize": self._convert_bytes(stats.st_size),
                 }
         return ("[%(user)s %(group)s %(filesize)s] " % details, "%(filename)s" % details)
@@ -157,10 +169,17 @@ class ImporterHelper(object):
         name, ext = os.path.splitext(base)
         return name
 
-    def _get_plugins_from_list(self, list_):
+    def _get_plugins_from_list(self, list_, package_path=None):
+
+        # jarfiles represent their paths with a / even on windows
+        # so we need to be able to use a different path separator
+        # in order for this to work right
+        if not package_path:
+            package_path = self.package_path
+
         plugins = [self._plugin_name(plugin)
                 for plugin in list_
-                if self.package_path in plugin
+                if package_path in plugin
                 and "__init__" not in plugin
                 and plugin.endswith(".py")]
         plugins.sort()
@@ -188,7 +207,8 @@ class ImporterHelper(object):
     def _find_plugins_in_zipfile(self, path):
         try:
             zf = zipfile.ZipFile(self._get_path_to_zip(path))
-            candidates = self._get_plugins_from_list(zf.namelist())
+            package_path = self.package_path.replace(os.path.sep, "/")
+            candidates = self._get_plugins_from_list(zf.namelist(), package_path)
             zf.close()
             if candidates:
                 return candidates
