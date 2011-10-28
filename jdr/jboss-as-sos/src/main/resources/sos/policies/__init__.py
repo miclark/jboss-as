@@ -1,4 +1,5 @@
 import os
+import platform
 from sos.utilities import ImporterHelper, import_module
 
 def import_policy(name):
@@ -10,12 +11,10 @@ def import_policy(name):
 
 def load():
     helper = ImporterHelper(os.path.join('sos', 'policies'))
-    policies = []
     for module in helper.get_modules():
         for policy in import_policy(module):
-            p = policy()
-            if p.check():
-                return p
+            if policy.check():
+                return policy()
     raise Exception("No policy could be loaded.")
 
 
@@ -86,3 +85,11 @@ class Policy(object):
         This function is called after the sosreport has been generated.
         """
         pass
+
+    def _parse_uname(self):
+        (system, node, release,
+         version, machine, processor) = platform.uname()
+        self.hostname = node
+        self.release = release
+        self.smp = version.split()[1] == "SMP"
+        self.machine = machine
