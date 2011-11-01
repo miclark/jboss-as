@@ -50,8 +50,7 @@ public class SosInterpreter {
         Date startTime = new Date();
 
         String homeDir = getJbossHomeDir();
-        if (homeDir == null)
-        {
+        if (homeDir == null) {
             // TODO: Error numbers
             final String message = "Unable to locate JDR plugins, JBoss home not specified.";
             log.error(message);
