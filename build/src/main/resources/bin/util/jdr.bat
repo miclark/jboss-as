@@ -19,7 +19,7 @@ if "%OS%" == "Windows_NT" (
   set DIRNAME=.\
 )
 
-pushd %DIRNAME%..
+pushd %DIRNAME%..\..
 if "x%JBOSS_HOME%" == "x" (
   set "JBOSS_HOME=%CD%"
 )

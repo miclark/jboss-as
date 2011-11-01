@@ -22,7 +22,9 @@
 
 package org.jboss.as.jdr;
 
-/**
+ import org.jboss.as.controller.OperationFailedException;
+
+ /**
  * Provides a main for collecting a JDR report from the command line.
  *
  * @author Mike M. Clark
@@ -37,7 +39,13 @@ public class CommandLineMain {
      */
     public static void main(String[] args) {
         JdrReportService reportService = new JdrReportService();
-        JdrReport response = reportService.standaloneCollect();
+
+        JdrReport response = null;
+        try {
+            response = reportService.standaloneCollect();
+        } catch (OperationFailedException e) {
+            System.out.println("Failed to complete the JDR report: " + e.getMessage());
+        }
 
         System.out.println("JDR started: " + response.getStartTime().toString());
         System.out.println("JDR ended: " + response.getEndTime().toString());
