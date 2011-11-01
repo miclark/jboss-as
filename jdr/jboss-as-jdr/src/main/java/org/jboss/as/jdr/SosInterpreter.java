@@ -21,7 +21,9 @@
  */
 package org.jboss.as.jdr;
 
+import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.client.ModelControllerClient;
+import org.jboss.dmr.ModelNode;
 import org.jboss.logging.Logger;
 import org.python.core.Py;
 import org.python.core.PyObject;
@@ -43,9 +45,18 @@ public class SosInterpreter {
     private String reportLocationDir = System.getProperty("user.dir");
     private ModelControllerClient controllerClient = null;
 
-    public JdrReport collect() {
+    public JdrReport collect() throws OperationFailedException {
         log.info("Collecting jdr.");
         Date startTime = new Date();
+
+        String homeDir = getJbossHomeDir();
+        if (homeDir == null)
+        {
+            // TODO: Error numbers
+            final String message = "Unable to locate JDR plugins, JBoss home not specified.";
+            log.error(message);
+            throw new OperationFailedException(message, new ModelNode().set(message));
+        }
 
         PythonInterpreter interpreter = new PythonInterpreter();
         interpreter.exec("import sys");
@@ -54,7 +65,7 @@ public class SosInterpreter {
         String pyLocation = getPythonScriptLocation();
         log.debug("Location of py script: " + pyLocation);
 
-        String homeDir = getJbossHomeDir();
+
         String locationDir = getReportLocationDir();
 
         PyObject report = null;
@@ -122,7 +133,7 @@ public class SosInterpreter {
      */
     public String getJbossHomeDir() {
         if (jbossHomeDir == null) {
-            jbossHomeDir = System.getProperty("user.dir");
+            jbossHomeDir = System.getenv("JBOSS_HOME");
         }
         return jbossHomeDir;
     }
@@ -131,11 +142,8 @@ public class SosInterpreter {
         this.jbossHomeDir = jbossHomeDir;
     }
 
-
-
     private String getPythonScriptLocation() {
         URL pyURL = this.getClass().getClassLoader().getResource("sos");
         return pyURL.getPath().split(":")[1].split("!")[0];
     }
-
 }
