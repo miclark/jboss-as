@@ -2,6 +2,11 @@
 rem -------------------------------------------------------------------------
 rem JBoss Diagnostic Report (JDR) Script for Windows
 rem -------------------------------------------------------------------------
+rem
+rem This script creates a JDR report containing useful information for
+rem diagnosing problems with the application server.  The report consists 
+rem of a zip file containing log files, configuration, a list of all files
+rem in the distribution and, if available, runtime metrics.
 
 rem $Id$
 

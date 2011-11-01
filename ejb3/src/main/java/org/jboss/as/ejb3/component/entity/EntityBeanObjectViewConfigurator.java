@@ -32,13 +32,13 @@ import org.jboss.as.ee.component.ViewConfiguration;
 import org.jboss.as.ee.component.ViewConfigurator;
 import org.jboss.as.ee.component.ViewDescription;
 import org.jboss.as.ee.component.interceptors.InterceptorOrder;
+import org.jboss.as.ejb3.component.interceptors.GetHomeInterceptorFactory;
 import org.jboss.as.ejb3.component.entity.interceptors.EntityBeanAssociatingInterceptorFactory;
 import org.jboss.as.ejb3.component.entity.interceptors.EntityBeanEjbCreateMethodInterceptorFactory;
-import org.jboss.as.ejb3.component.entity.interceptors.EntityBeanGetHomeInterceptorFactory;
 import org.jboss.as.ejb3.component.entity.interceptors.EntityBeanPrimaryKeyInterceptor;
 import org.jboss.as.ejb3.component.entity.interceptors.EntityBeanRemoveInterceptorFactory;
-import org.jboss.as.ejb3.component.entity.interceptors.EntityIdentityInterceptorFactory;
-import org.jboss.as.ejb3.component.entity.interceptors.EntityIsIdenticalInterceptorFactory;
+import org.jboss.as.ejb3.component.entity.interceptors.EntityBeanIdentityInterceptorFactory;
+import org.jboss.as.ejb3.component.entity.interceptors.EntityBeanIsIdenticalInterceptorFactory;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
 import org.jboss.as.server.deployment.reflect.ClassReflectionIndex;
@@ -75,10 +75,10 @@ public class EntityBeanObjectViewConfigurator implements ViewConfigurator {
             } else if (method.getName().equals("isIdentical") && method.getParameterTypes().length == 1 &&
                     (method.getParameterTypes()[0] == EJBLocalObject.class || method.getParameterTypes()[0] == EJBObject.class)) {
                 configuration.addClientInterceptor(method, ViewDescription.CLIENT_DISPATCHER_INTERCEPTOR_FACTORY, InterceptorOrder.Client.CLIENT_DISPATCHER);
-                configuration.addViewInterceptor(method, EntityIsIdenticalInterceptorFactory.INSTANCE, InterceptorOrder.View.COMPONENT_DISPATCHER);
+                configuration.addViewInterceptor(method, EntityBeanIsIdenticalInterceptorFactory.INSTANCE, InterceptorOrder.View.COMPONENT_DISPATCHER);
             } else if (method.getName().equals("getEJBLocalHome") && method.getParameterTypes().length == 0) {
                 configuration.addClientInterceptor(method, ViewDescription.CLIENT_DISPATCHER_INTERCEPTOR_FACTORY, InterceptorOrder.Client.CLIENT_DISPATCHER);
-                final EntityBeanGetHomeInterceptorFactory factory = new EntityBeanGetHomeInterceptorFactory();
+                final GetHomeInterceptorFactory factory = new GetHomeInterceptorFactory();
                 configuration.addViewInterceptor(method, factory, InterceptorOrder.View.COMPONENT_DISPATCHER);
                 final EntityBeanComponentDescription entityBeanComponentDescription = (EntityBeanComponentDescription) componentConfiguration.getComponentDescription();
                 componentConfiguration.getStartDependencies().add(new DependencyConfigurator<ComponentStartService>() {
@@ -89,7 +89,7 @@ public class EntityBeanObjectViewConfigurator implements ViewConfigurator {
                 });
             } else if (method.getName().equals("getEJBHome") && method.getParameterTypes().length == 0) {
                 configuration.addClientInterceptor(method, ViewDescription.CLIENT_DISPATCHER_INTERCEPTOR_FACTORY, InterceptorOrder.Client.CLIENT_DISPATCHER);
-                final EntityBeanGetHomeInterceptorFactory factory = new EntityBeanGetHomeInterceptorFactory();
+                final GetHomeInterceptorFactory factory = new GetHomeInterceptorFactory();
                 configuration.addViewInterceptor(method, factory, InterceptorOrder.View.COMPONENT_DISPATCHER);
                 final EntityBeanComponentDescription entityBeanComponentDescription = (EntityBeanComponentDescription) componentConfiguration.getComponentDescription();
                 componentConfiguration.getStartDependencies().add(new DependencyConfigurator<ComponentStartService>() {
@@ -99,7 +99,7 @@ public class EntityBeanObjectViewConfigurator implements ViewConfigurator {
                     }
                 });
             } else if ((method.getName().equals("hashCode") && method.getParameterTypes().length == 0) || method.getName().equals("equals") && method.getParameterTypes().length == 1 && method.getParameterTypes()[0] == Object.class) {
-                configuration.addClientInterceptor(method, EntityIdentityInterceptorFactory.INSTANCE, InterceptorOrder.Client.EJB_EQUALS_HASHCODE);
+                configuration.addClientInterceptor(method, EntityBeanIdentityInterceptorFactory.INSTANCE, InterceptorOrder.Client.EJB_EQUALS_HASHCODE);
             } else {
                 final ClassReflectionIndex<?> classReflectionIndex = index.getClassIndex(componentConfiguration.getComponentClass());
                 final Method componentMethod = ClassReflectionIndexUtil.findMethod(index, classReflectionIndex, MethodIdentifier.getIdentifierForMethod(method));

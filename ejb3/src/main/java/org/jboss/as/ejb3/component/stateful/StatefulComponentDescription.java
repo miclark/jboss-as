@@ -237,7 +237,7 @@ public class StatefulComponentDescription extends SessionBeanComponentDescriptio
 
         if (view instanceof EJBViewDescription) {
             EJBViewDescription ejbViewDescription = (EJBViewDescription) view;
-            if(ejbViewDescription.getMethodIntf() == MethodIntf.REMOTE || ejbViewDescription.getMethodIntf() == MethodIntf.REMOTE) {
+            if(ejbViewDescription.getMethodIntf() == MethodIntf.REMOTE) {
                 view.getConfigurators().add(new ViewConfigurator() {
                     @Override
                     public void configure(final DeploymentPhaseContext context, final ComponentConfiguration componentConfiguration, final ViewDescription description, final ViewConfiguration configuration) throws DeploymentUnitProcessingException {
@@ -246,6 +246,11 @@ public class StatefulComponentDescription extends SessionBeanComponentDescriptio
                 });
             }
         }
+    }
+
+    @Override
+    protected ViewConfigurator getSessionBeanObjectViewConfigurator() {
+        return StatefulSessionBeanObjectViewConfigurator.INSTANCE;
     }
 
     private void addViewSerializationInterceptor(final ViewDescription view) {
@@ -327,7 +332,7 @@ public class StatefulComponentDescription extends SessionBeanComponentDescriptio
                     final MethodIdentifier viewMethodIdentifier = MethodIdentifier.getIdentifierForMethod(viewMethod);
                     for (final StatefulRemoveMethod removeMethod : removeMethods) {
                         if (removeMethod.methodIdentifier.equals(viewMethodIdentifier)) {
-                            configuration.addViewInterceptor(viewMethod, new ImmediateInterceptorFactory(new StatefulRemoveInterceptor(removeMethod.retainIfException)), InterceptorOrder.View.SFSB_REMOVE_INTERCEPTOR);
+                            configuration.addViewInterceptor(viewMethod, new ImmediateInterceptorFactory(new StatefulRemoveInterceptor(removeMethod.retainIfException)), InterceptorOrder.View.SESSION_REMOVE_INTERCEPTOR);
                             break;
                         }
                     }

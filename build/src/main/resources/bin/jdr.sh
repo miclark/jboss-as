@@ -1,8 +1,14 @@
 #!/bin/sh
 
+# JBoss Diagnostic Reporter (JDR)
+#
+# This script creates a JDR report containing useful information for
+# diagnosing problems with the application server.  The report consists 
+# of a zip file containing log files, configuration, a list of all files
+# in the distribution and, if available, runtime metrics.
+#
+
 DIRNAME=`dirname "$0"`
-PROGNAME=`basename "$0"`
-GREP="grep"
 
 # OS specific support (must be 'true' or 'false').
 cygwin=false;

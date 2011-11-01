@@ -26,7 +26,7 @@
     <parent>
       <groupId>org.jboss</groupId>
       <artifactId>jboss-parent</artifactId>
-      <version>6</version>
+      <version>7</version>
     </parent>
 
     <groupId>org.jboss.as</groupId>
@@ -37,6 +37,14 @@
     <description>JBoss Application Server: Parent Aggregator</description>
 
     <packaging>pom</packaging>
+
+    <licenses>
+        <license>
+            <name>lgpl</name>
+            <url>http://repository.jboss.org/licenses/lgpl-2.1.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <scm>
         <connection>scm:git:${jboss.as.scm.connection}</connection>
@@ -58,7 +66,7 @@
         <!-- Dependency versions. Please keep alphabetical -->
 
         <version.antlr>2.7.7</version.antlr>
-        <version.asm>3.3</version.asm>
+        <version.asm>3.3.1</version.asm>
         <version.ch.qos.cal10n.cal10n-api>0.7.3</version.ch.qos.cal10n.cal10n-api>
         <version.commons-beanutils>1.8.0</version.commons-beanutils>
         <version.commons-codec>1.4</version.commons-codec>
@@ -98,7 +106,8 @@
         <version.org.apache.felix.scr>1.6.0</version.org.apache.felix.scr>
         <version.org.apache.felix.webconsole>3.1.6.SP1</version.org.apache.felix.webconsole>
         <version.org.apache.james.apache-mime4j>0.6</version.org.apache.james.apache-mime4j>
-        <version.org.apache.httpcomponents>4.1.1</version.org.apache.httpcomponents>
+        <version.org.apache.httpcomponents.httpclient>4.1.2</version.org.apache.httpcomponents.httpclient>
+        <version.org.apache.httpcomponents.httpcore>4.1.2</version.org.apache.httpcomponents.httpcore>
         <version.org.apache.neethi>3.0.0</version.org.apache.neethi>
         <version.org.apache.velocity>1.6.3</version.org.apache.velocity>
         <version.org.apache.xalan>2.7.1.jbossorg-1</version.org.apache.xalan>
@@ -107,10 +116,9 @@
         <version.org.apache.ws.xmlschema>2.0</version.org.apache.ws.xmlschema>
         <version.org.apache.ws.security>1.6.1</version.org.apache.ws.security>
         <version.org.codehaus.jackson>1.6.3</version.org.codehaus.jackson>
-        <version.org.codehaus.mojo.javacc>2.3-jboss-1</version.org.codehaus.mojo.javacc>
         <version.org.codehaus.woodstox.stax2-api>3.1.1</version.org.codehaus.woodstox.stax2-api>
         <version.org.codehaus.woodstox.woodstox-core-asl>4.1.1</version.org.codehaus.woodstox.woodstox-core-asl>
-        <version.org.hibernate>4.0.0.CR2</version.org.hibernate>
+        <version.org.hibernate>4.0.0.CR5</version.org.hibernate>
         <version.org.hibernate.commons.annotations>4.0.0.CR2</version.org.hibernate.commons.annotations>
         <version.org.hibernate.javax.persistence.hibernate-jpa-2.0-api>1.0.1.Final</version.org.hibernate.javax.persistence.hibernate-jpa-2.0-api>
         <version.org.hibernate.validator>4.2.0.Final</version.org.hibernate.validator>
@@ -139,27 +147,27 @@
         <version.org.jboss.logging.jboss-logging-tools>1.0.0.CR3</version.org.jboss.logging.jboss-logging-tools>
         <version.org.jboss.logmanager.jboss-logmanager>1.2.0.GA</version.org.jboss.logmanager.jboss-logmanager>
         <version.org.jboss.logmanager.jboss-logmanager-log4j>1.0.0.GA</version.org.jboss.logmanager.jboss-logmanager-log4j>
-        <version.org.jboss.management.console>1.0.0.Beta19</version.org.jboss.management.console>
+        <version.org.jboss.management.console>1.0.0.Beta22</version.org.jboss.management.console>
         <version.org.jboss.marshalling.jboss-marshalling>1.3.1.GA</version.org.jboss.marshalling.jboss-marshalling>
         <version.org.jboss.marshalling.jboss-marshalling-river>1.3.1.GA</version.org.jboss.marshalling.jboss-marshalling-river>
         <version.org.jboss.metadata>7.0.0.Beta15</version.org.jboss.metadata>
         <version.org.jboss.mod_cluster>1.1.3.Final</version.org.jboss.mod_cluster>
-        <version.org.jboss.modules.jboss-modules>1.0.3.GA</version.org.jboss.modules.jboss-modules>
+        <version.org.jboss.modules.jboss-modules>1.1.0.Beta4</version.org.jboss.modules.jboss-modules>
         <version.org.jboss.msc.jboss-msc>1.0.1.GA</version.org.jboss.msc.jboss-msc>
         <version.org.jboss.netty>3.2.3.Final</version.org.jboss.netty>
         <version.org.jboss.osgi.blueprint>1.0.3</version.org.jboss.osgi.blueprint>
         <version.org.jboss.osgi.deployment>1.0.10</version.org.jboss.osgi.deployment>
-        <version.org.jboss.osgi.framework>1.0.0</version.org.jboss.osgi.framework>
+        <version.org.jboss.osgi.framework>1.1.0</version.org.jboss.osgi.framework>
         <version.org.jboss.osgi.http>1.0.5</version.org.jboss.osgi.http>
         <version.org.jboss.osgi.jmx>1.0.10</version.org.jboss.osgi.jmx>
         <version.org.jboss.osgi.logging>1.0.0</version.org.jboss.osgi.logging>
-        <version.org.jboss.osgi.resolver>1.0.9</version.org.jboss.osgi.resolver>
+        <version.org.jboss.osgi.resolver>1.0.10</version.org.jboss.osgi.resolver>
         <version.org.jboss.osgi.spi>1.0.28</version.org.jboss.osgi.spi>
         <version.org.jboss.osgi.vfs>1.0.6</version.org.jboss.osgi.vfs>
         <version.org.jboss.osgi.webapp>1.0.5</version.org.jboss.osgi.webapp>
         <version.org.jboss.osgi.webconsole>1.0.6</version.org.jboss.osgi.webconsole>
         <version.org.jboss.osgi.xerces>2.9.1.SP7</version.org.jboss.osgi.xerces>
-        <version.org.jboss.remoting3.jboss-remoting>3.2.0.Beta4</version.org.jboss.remoting3.jboss-remoting>
+        <version.org.jboss.remoting3.jboss-remoting>3.2.0.Beta5</version.org.jboss.remoting3.jboss-remoting>
         <version.org.jboss.resteasy.resteasy-jaxrs>2.2.3.GA</version.org.jboss.resteasy.resteasy-jaxrs>
         <version.org.jboss.sasl>1.0.0.Beta3</version.org.jboss.sasl>
         <version.org.jboss.seam.int>6.0.0.GA</version.org.jboss.seam.int>
@@ -192,7 +200,7 @@
         <version.org.jboss.staxmapper>1.0.0.Final</version.org.jboss.staxmapper>
         <version.org.jboss.stdio.jboss-stdio>1.0.0.GA</version.org.jboss.stdio.jboss-stdio>
         <version.org.jboss.threads.jboss-threads>2.0.0.GA</version.org.jboss.threads.jboss-threads>
-        <version.org.jboss.web>7.0.2.Final</version.org.jboss.web>
+        <version.org.jboss.web>7.0.3.Final</version.org.jboss.web>
         <version.org.jboss.web.jasper-jdt>7.0.0.Beta8</version.org.jboss.web.jasper-jdt>
         <version.org.jboss.weld.weld>1.1.2.Final</version.org.jboss.weld.weld>
         <version.org.jboss.weld.weld-api>1.1.Final</version.org.jboss.weld.weld-api>
@@ -204,7 +212,7 @@
         <version.org.jboss.ws.spi>2.0.0.Beta12</version.org.jboss.ws.spi>
         <version.org.jboss.ws.jaxws-jboss-httpserver-httpspi>1.0.0.GA</version.org.jboss.ws.jaxws-jboss-httpserver-httpspi>
         <version.org.jboss.xb>2.0.3.GA</version.org.jboss.xb>
-        <version.org.jboss.xnio>3.0.0.Beta7</version.org.jboss.xnio>
+        <version.org.jboss.xnio>3.0.0.Beta8</version.org.jboss.xnio>
         <version.org.jboss.xnio.xnio-api>${version.org.jboss.xnio}</version.org.jboss.xnio.xnio-api>
         <version.org.jboss.xnio.xnio-nio>${version.org.jboss.xnio}</version.org.jboss.xnio.xnio-nio>
         <version.org.jgroups>3.0.0.CR5</version.org.jgroups>
@@ -224,8 +232,8 @@
         <version.sun.saaj-impl>1.3.2</version.sun.saaj-impl>
         <version.wsdl4j>1.6.2</version.wsdl4j>
 
-        <!-- Plugin versions -->
-        <version.surefire.plugin>2.9</version.surefire.plugin>
+        <!-- Non-default plugin versions and configuration -->
+        <version.javacc.plugin>2.5</version.javacc.plugin>
 
         <!-- Surefire args -->
         <surefire.jpda.args/>
@@ -301,7 +309,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
-                <version>1.0</version>
                 <executions>
                     <execution>
                         <phase>validate</phase>
@@ -540,6 +547,45 @@
                                         </versionRange>
                                         <goals>
                                             <goal>run</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore/>
+                                    </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>
+                                            org.codehaus.mojo
+                                        </groupId>
+                                        <artifactId>
+                                            javacc-maven-plugin
+                                        </artifactId>
+                                        <versionRange>
+                                            [2.5,)
+                                        </versionRange>
+                                        <goals>
+                                            <goal>jjtree</goal>
+                                            <goal>javacc</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore/>
+                                    </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>
+                                            org.codehaus.mojo
+                                        </groupId>
+                                        <artifactId>
+                                            xml-maven-plugin
+                                        </artifactId>
+                                        <versionRange>
+                                            [1.0,)
+                                        </versionRange>
+                                        <goals>
+                                            <goal>transform</goal>
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
@@ -2598,7 +2644,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>${version.org.apache.httpcomponents}</version>
+                <version>${version.org.apache.httpcomponents.httpclient}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -2610,7 +2656,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
-                <version>${version.org.apache.httpcomponents}</version>
+                <version>${version.org.apache.httpcomponents.httpcore}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -2622,7 +2668,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpmime</artifactId>
-                <version>${version.org.apache.httpcomponents}</version>
+                <version>${version.org.apache.httpcomponents.httpclient}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
