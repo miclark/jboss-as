@@ -19,7 +19,7 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.as.jaxrs;
+package org.jboss.as.jdr;
 
 import java.io.IOException;
 
@@ -36,9 +36,11 @@ public class JdrSubsystemTestCase extends AbstractSubsystemBaseTest {
         super(JdrReportExtension.SUBSYSTEM_NAME, new JdrReportExtension());
     }
 
+    /**
+     * Verify the Subsystem XML is valid.
+     */
     @Override
     protected String getSubsystemXml() throws IOException {
         return "<subsystem xmlns=\"urn:jboss:domain:jdr:1.0\"/>";
     }
-
 }

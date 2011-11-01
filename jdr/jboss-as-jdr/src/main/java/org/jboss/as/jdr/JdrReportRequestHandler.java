@@ -36,6 +36,7 @@ import java.util.Locale;
  * Operation handler for an end user request to generate a JDR report.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
+ * @author Mike M. Clark
  */
 public class JdrReportRequestHandler implements OperationStepHandler, DescriptionProvider {
 
@@ -66,8 +67,8 @@ public class JdrReportRequestHandler implements OperationStepHandler, Descriptio
                 ServiceRegistry registry = context.getServiceRegistry(false);
                 JdrReportCollector jdrCollector = JdrReportCollector.class.cast(registry.getRequiredService(JdrReportService.SERVICE_NAME).getValue());
 
-                JdrReport report = jdrCollector.collect();
                 ModelNode response = context.getResult();
+                JdrReport report = jdrCollector.collect();
 
                 if (report.getStartTime() != null) {
                     response.get("start-time").set(report.getStartTime().toString());
