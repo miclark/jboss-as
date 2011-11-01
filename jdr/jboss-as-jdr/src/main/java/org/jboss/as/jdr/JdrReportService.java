@@ -23,6 +23,7 @@
 package org.jboss.as.jdr;
 
 import org.jboss.as.controller.ModelController;
+import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.client.ModelControllerClient;
 import org.jboss.as.server.ServerEnvironment;
@@ -78,7 +79,7 @@ public class JdrReportService implements JdrReportCollector, Service<JdrReportCo
     /**
      * Collect a JDR report when run outside the Application Server.
      */
-    public JdrReport standaloneCollect() {
+    public JdrReport standaloneCollect() throws OperationFailedException {
         SosInterpreter interpreter = new SosInterpreter();
         return interpreter.collect();
     }
@@ -86,7 +87,7 @@ public class JdrReportService implements JdrReportCollector, Service<JdrReportCo
     /**
      * Collect a JDR report.
      */
-    public JdrReport collect() {
+    public JdrReport collect() throws OperationFailedException {
         SosInterpreter interpreter = new SosInterpreter();
         serverEnvironment = serverEnvironmentValue.getValue();
         interpreter.setJbossHomeDir(serverEnvironment.getHomeDir().getAbsolutePath());

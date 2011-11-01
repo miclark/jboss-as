@@ -22,6 +22,8 @@
 
 package org.jboss.as.jdr;
 
+import org.jboss.as.controller.OperationFailedException;
+
 /**
  * Used to create a JBoss Diagnostic Report (JDR).
  *
@@ -34,5 +36,5 @@ public interface JdrReportCollector {
      *
      * @return information about the generated report.
      */
-    JdrReport collect();
+    JdrReport collect() throws OperationFailedException;
 }
