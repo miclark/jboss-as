@@ -132,10 +132,13 @@ public class SosInterpreter {
     }
 
 
+    public static String getPath(String path) {
+        return path.split(":", 2)[1].split("!")[0];
+    }
 
     private String getPythonScriptLocation() {
         URL pyURL = this.getClass().getClassLoader().getResource("sos");
-        return pyURL.getPath().split(":")[1].split("!")[0];
+        return SosInterpreter.getPath(pyURL.getPath());
     }
 
 }
