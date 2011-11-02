@@ -45,7 +45,7 @@ import static org.jboss.as.threads.ThreadsDescriptionUtil.pathAddress;
 /**
  * Extension for triggering, requesting, generating and accessing JDR reports.
  *
- * @author Brian Stansberry (c) 2011 Red Hat Inc.
+ * @author Brian Stansberry
  */
 public class JdrReportExtension implements Extension {
 

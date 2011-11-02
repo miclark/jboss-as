@@ -33,7 +33,7 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.*;
 /**
  * Utility methods to generate detyped descriptions of JDR subsystem resources and operations.
  *
- * @author Brian Stansberry (c) 2011 Red Hat Inc.
+ * @author Brian Stansberry
  * @author Mike M. Clark
  */
 public class JdrReportDescriptions {

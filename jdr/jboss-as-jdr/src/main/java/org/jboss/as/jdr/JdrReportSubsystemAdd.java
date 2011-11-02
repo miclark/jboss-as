@@ -38,7 +38,7 @@ import java.util.Locale;
 /**
  * Adds the JDR subsystem.
  *
- * @author Brian Stansberry (c) 2011 Red Hat Inc.
+ * @author Brian Stansberry
  */
 public class JdrReportSubsystemAdd extends AbstractAddStepHandler implements DescriptionProvider {
 

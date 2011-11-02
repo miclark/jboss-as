@@ -49,7 +49,7 @@ import java.util.concurrent.ThreadFactory;
 /**
  * Service that provides a {@link JdrReportCollector}.
  *
- * @author Brian Stansberry (c) 2011 Red Hat Inc.
+ * @author Brian Stansberry
  * @author Mike M. Clark
  * @author Jesse Jaggars
  */

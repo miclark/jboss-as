@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * Names of elements used in the JDR extension's schema.
  *
- * @author Brian Stansberry (c) 2011 Red Hat Inc.
+ * @author Brian Stansberry
  */
 public enum Element {
     // must be first

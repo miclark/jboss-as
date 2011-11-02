@@ -27,7 +27,7 @@ import org.jboss.as.controller.OperationFailedException;
 /**
  * Used to create a JBoss Diagnostic Report (JDR).
  *
- * @author Brian Stansberry (c) 2011 Red Hat Inc.
+ * @author Brian Stansberry
  * @author Mike M. Clark
  */
 public interface JdrReportCollector {

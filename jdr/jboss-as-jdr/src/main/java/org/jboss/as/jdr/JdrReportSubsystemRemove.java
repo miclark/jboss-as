@@ -34,7 +34,7 @@ import java.util.Locale;
 /**
  * Remove the JDR subsystem.
  *
- * @author Brian Stansberry (c) 2011 Red Hat Inc.
+ * @author Brian Stansberry
  */
 public class JdrReportSubsystemRemove extends AbstractRemoveStepHandler implements DescriptionProvider {
 

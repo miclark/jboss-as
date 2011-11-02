@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * The namespaces supported by the JDR extension.
  *
- * @author Brian Stansberry (c) 2011 Red Hat Inc.
+ * @author Brian Stansberry
  * @author Mike M. Clark
  */
 enum Namespace {

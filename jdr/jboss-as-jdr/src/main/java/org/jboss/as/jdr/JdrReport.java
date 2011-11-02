@@ -27,7 +27,7 @@ import java.util.Date;
 /**
  * Provides metadata about and access to the data collected by a {@link JdrReportCollector}.
  *
- * @author Brian Stansberry (c) 2011 Red Hat Inc.
+ * @author Brian Stansberry
  * @author Mike M. Clark
  */
 public class JdrReport {

@@ -35,7 +35,7 @@ import java.util.Locale;
 /**
  * Operation handler for an end user request to generate a JDR report.
  *
- * @author Brian Stansberry (c) 2011 Red Hat Inc.
+ * @author Brian Stansberry
  * @author Mike M. Clark
  */
 public class JdrReportRequestHandler implements OperationStepHandler, DescriptionProvider {
