@@ -28,6 +28,7 @@ import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.Date;
 
 import static org.jboss.as.jdr.JdrLogger.ROOT_LOGGER;
@@ -72,6 +73,9 @@ public class SosInterpreter {
 
         String locationDir = getReportLocationDir();
 
+        ROOT_LOGGER.debug("locationDir = " + locationDir);
+        ROOT_LOGGER.debug("homeDir = " + SosInterpreter.cleanPath(homeDir));
+
         PyObject report = null;
         try {
             interpreter.exec("sys.path.append(\"" + pyLocation + "\")");
@@ -86,7 +90,7 @@ public class SosInterpreter {
             }
 
             interpreter.exec("from sos.sosreport import main");
-            interpreter.exec("args = shlex.split('-k eap6.home=" + homeDir + " --tmp-dir=" + locationDir +" -o eap6 --batch --report --compression-type=zip --silent')");
+            interpreter.exec("args = shlex.split('-k eap6.home=\"" + homeDir + "\" --tmp-dir=\"" + locationDir + "\" -o eap6 --batch --report --compression-type=zip --silent')");
             interpreter.exec("reportLocation = main(args)");
             report = interpreter.get("reportLocation");
             interpreter.cleanup();
@@ -122,7 +126,7 @@ public class SosInterpreter {
      * @return location for the archive
      */
     public String getReportLocationDir() {
-        return reportLocationDir;
+        return SosInterpreter.cleanPath(reportLocationDir);
     }
 
     public void setControllerClient(ModelControllerClient controllerClient) {
@@ -137,8 +141,12 @@ public class SosInterpreter {
      * as specified by the <code>user.dir</code> System property is used.
      */
     public String getJbossHomeDir() {
-        return jbossHomeDir;
+        if (jbossHomeDir == null) {
+            jbossHomeDir = System.getenv("JBOSS_HOME");
+        }
+        return SosInterpreter.cleanPath(jbossHomeDir);
     }
+
 
     /**
      * Sets the root directory
@@ -162,8 +170,18 @@ public class SosInterpreter {
         return path.split(":", 2)[1].split("!")[0];
     }
 
+    public static String cleanPath(String path) {
+        try {
+            path = URLDecoder.decode(path, "utf-8");
+        } catch (Exception e) {
+            ROOT_LOGGER.debug(e);
+        }
+        return path.replace("\\", "\\\\");
+    }
+
     private String getPythonScriptLocation() {
         URL pyURL = this.getClass().getClassLoader().getResource("sos");
-        return SosInterpreter.getPath(pyURL.getPath());
+        String decodedPath = SosInterpreter.cleanPath(pyURL.getPath());
+        return SosInterpreter.getPath(decodedPath);
     }
 }

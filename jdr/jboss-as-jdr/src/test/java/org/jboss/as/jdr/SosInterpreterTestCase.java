@@ -60,6 +60,12 @@ public class SosInterpreterTestCase {
         assertEquals("C:\\path\\to\\thing.jar", SosInterpreter.getPath(path));
     }
 
+    @Test
+    public void testWindowsEncodedPath() {
+        String path = "file:C:%5Cjboss%5Cas%5Cfoo";
+        assertEquals("file:C:\\\\jboss\\\\as\\\\foo", SosInterpreter.cleanPath(path));
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testSetJBossHomeValidation() throws Exception {
         SosInterpreter sosInterpreter = new SosInterpreter();
