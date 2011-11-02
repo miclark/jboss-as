@@ -24,13 +24,15 @@ package org.jboss.as.jdr;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.client.ModelControllerClient;
 import org.jboss.dmr.ModelNode;
-import org.jboss.logging.Logger;
 import org.python.core.Py;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
 import java.net.URL;
 import java.util.Date;
+
+import static org.jboss.as.jdr.JdrLogger.ROOT_LOGGER;
+import static org.jboss.as.jdr.JdrMessages.MESSAGES;
 
 /**
  * Wraps up the access to the jython interpreter to encapsulate its use
@@ -39,22 +41,18 @@ import java.util.Date;
  * @author Mike M. Clark
  */
 public class SosInterpreter {
-    private static final Logger log = Logger.getLogger(JdrReportService.class);
-
     private String jbossHomeDir = System.getProperty("jboss.home.dir");
     private String reportLocationDir = System.getProperty("user.dir");
     private ModelControllerClient controllerClient = null;
 
     public JdrReport collect() throws OperationFailedException {
-        log.info("Collecting jdr.");
+        ROOT_LOGGER.startingCollection();
         Date startTime = new Date();
 
         String homeDir = getJbossHomeDir();
         if (homeDir == null) {
-            // TODO: Error numbers
-            final String message = "Unable to locate JDR plugins, JBoss home not specified.";
-            log.error(message);
-            throw new OperationFailedException(message, new ModelNode().set(message));
+            ROOT_LOGGER.jbossHomeNotSet();
+            throw new OperationFailedException(MESSAGES.jbossHomeNotSet(), new ModelNode().set(MESSAGES.jbossHomeNotSet()));
         }
 
         PythonInterpreter interpreter = new PythonInterpreter();
@@ -62,8 +60,7 @@ public class SosInterpreter {
         interpreter.exec("import shlex");
 
         String pyLocation = getPythonScriptLocation();
-        log.debug("Location of py script: " + pyLocation);
-
+        ROOT_LOGGER.debug("Location of JDR scripts: " + pyLocation);
 
         String locationDir = getReportLocationDir();
 
@@ -91,6 +88,7 @@ public class SosInterpreter {
         }
 
         Date endTime = new Date();
+        ROOT_LOGGER.endingCollection();
 
         JdrReport result = new JdrReport();
         result.setStartTime(startTime);
@@ -141,6 +139,12 @@ public class SosInterpreter {
         this.jbossHomeDir = jbossHomeDir;
     }
 
+    /**
+     * Splits a URL jar path to find the referenced jar location.
+     *
+     * @param path location of a resource in a jar file.
+     * @return path location of the jar file containing the resource.
+     */
     public static String getPath(String path) {
         return path.split(":", 2)[1].split("!")[0];
     }

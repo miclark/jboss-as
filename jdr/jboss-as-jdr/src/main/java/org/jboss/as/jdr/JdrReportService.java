@@ -29,7 +29,6 @@ import org.jboss.as.controller.client.ModelControllerClient;
 import org.jboss.as.server.ServerEnvironment;
 import org.jboss.as.server.ServerEnvironmentService;
 import org.jboss.as.server.Services;
-import org.jboss.logging.Logger;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
@@ -45,7 +44,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
-
 /**
  * Service that provides a {@link JdrReportCollector}.
  *
@@ -56,8 +54,6 @@ import java.util.concurrent.ThreadFactory;
 public class JdrReportService implements JdrReportCollector, Service<JdrReportCollector> {
 
     public static final ServiceName SERVICE_NAME = ServiceName.JBOSS.append("jdr", "collector");
-
-    private static final Logger log = Logger.getLogger(JdrReportService.class);
 
     public static ServiceController<JdrReportCollector> addService(final ServiceTarget target, final ServiceVerificationHandler verificationHandler) {
 
