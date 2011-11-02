@@ -24,7 +24,6 @@ package org.jboss.as.jdr;
 
 import org.jboss.as.controller.parsing.ParseUtils;
 import org.jboss.as.controller.persistence.SubsystemMarshallingContext;
-import org.jboss.as.threads.Element;
 import org.jboss.dmr.ModelNode;
 import org.jboss.staxmapper.XMLElementReader;
 import org.jboss.staxmapper.XMLElementWriter;
@@ -36,7 +35,6 @@ import javax.xml.stream.XMLStreamException;
 import java.util.List;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.*;
-import static org.jboss.as.controller.parsing.ParseUtils.unexpectedElement;
 
 public final class JdrReportSubsystemParser implements XMLStreamConstants, XMLElementReader<List<ModelNode>>,
         XMLElementWriter<SubsystemMarshallingContext> {
@@ -74,8 +72,7 @@ public final class JdrReportSubsystemParser implements XMLStreamConstants, XMLEl
         writer.writeEndElement();
     }
 
-    /* TODO: why public? */
-    public void writeJdrElements(final XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
+    private void writeJdrElements(final XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
         writer.writeAttribute(Attribute.ENABLED.getLocalName(), node.require(CommonAttributes.ENABLED).toString());
     }
 }

@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public enum Element {
     // must be first
-    UNKNOWN(null);  // TODO add elements
+    UNKNOWN(null);
 
     private final String name;
 

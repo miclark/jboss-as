@@ -22,13 +22,13 @@
 package org.jboss.as.jdr;
 
 import org.jboss.logging.BasicLogger;
+import org.jboss.logging.Cause;
 import org.jboss.logging.LogMessage;
 import org.jboss.logging.Logger;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageLogger;
 
-import static org.jboss.logging.Logger.Level.ERROR;
-import static org.jboss.logging.Logger.Level.INFO;
+import static org.jboss.logging.Logger.Level.*;
 
 /**
  * JBoss Diagnostic Reporter (JDR) logger.
@@ -64,5 +64,10 @@ interface JdrLogger extends BasicLogger {
     @Message(id=14502, value="Unable to create JDR report, JBoss Home directory cannot be determined.")
     void jbossHomeNotSet();
 
-
+    /**
+     * The sosreport python library threw an exception
+     */
+    @LogMessage(level = WARN)
+    @Message(id=14503, value="JDR python interpreter encountered an exception.")
+    void pythonExceptionEncountered(@Cause Throwable cause);
 }

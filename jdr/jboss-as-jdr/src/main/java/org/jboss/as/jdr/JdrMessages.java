@@ -38,4 +38,14 @@ interface JdrMessages {
 
     @Message(value = "JBoss Home directory cannot be determined.")
     String jbossHomeNotSet();
+
+    /**
+     * Indicates an invalid, <code>null</code> argument was
+     * passed into a method.
+     *
+     * @param var method variable that was <code>null</code>
+     * @return  Exception describing the invalid parameter.
+     */
+    @Message(value = "Parameter %s may not be null.")
+    IllegalArgumentException varNull(String var);
 }

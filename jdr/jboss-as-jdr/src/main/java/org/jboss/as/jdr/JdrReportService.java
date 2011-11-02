@@ -94,7 +94,6 @@ public class JdrReportService implements JdrReportCollector, Service<JdrReportCo
 
     public void start(StartContext context) throws StartException {
         final ThreadFactory threadFactory = new JBossThreadFactory(new ThreadGroup("JdrReportCollector-threads"), Boolean.FALSE, null, "%G - %t", null, null, AccessController.getContext());
-        // TODO give some more thought to what concurrency characteristics are desirable
         final ExecutorService executorService = Executors.newCachedThreadPool(threadFactory);
         serverEnvironment = serverEnvironmentValue.getValue();
         controllerClient = modelControllerValue.getValue().createClient(executorService);

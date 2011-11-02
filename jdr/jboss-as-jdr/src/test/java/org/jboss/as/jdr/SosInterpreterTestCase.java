@@ -21,6 +21,7 @@
  */
 package org.jboss.as.jdr;
 
+import org.jboss.as.controller.OperationFailedException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -33,27 +34,50 @@ import static org.junit.Assert.assertEquals;
  */
 public class SosInterpreterTestCase {
 
+    private final static String JBOSS_HOME_ENV_VAR = "JBOSS_HOME";
+
     @Test
-    public void testUnixPath() {
+    public void testGetPathUnixPath() {
         String path = "file:/path/to/thing";
         assertEquals("/path/to/thing", SosInterpreter.getPath(path));
     }
 
     @Test
-    public void testWindowsPath() {
+    public void testGetPathWindowsPath() {
         String path = "file:C:\\path\\to\\thing";
         assertEquals("C:\\path\\to\\thing", SosInterpreter.getPath(path));
     }
 
     @Test
-    public void testUnixPathWithJar() {
+    public void testGetPathUnixPathWithJar() {
         String path = "file:/path/to/thing.jar!/path/inside/jar";
         assertEquals("/path/to/thing.jar", SosInterpreter.getPath(path));
     }
 
     @Test
-    public void testWindowsPathWithJar() {
+    public void testGetPathWindowsPathWithJar() {
         String path = "file:C:\\path\\to\\thing.jar!/path/inside/jar";
         assertEquals("C:\\path\\to\\thing.jar", SosInterpreter.getPath(path));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSetJBossHomeValidation() throws Exception {
+        SosInterpreter sosInterpreter = new SosInterpreter();
+        sosInterpreter.setJbossHomeDir(null);
+    }
+
+    @Test(expected = OperationFailedException.class)
+    public void testNullJBossHomeValidation() throws Exception {
+        SosInterpreter sosInterpreter = new SosInterpreterNullJBossHome();
+        sosInterpreter.collect();
+    }
+
+    /**
+     * Used to test the error handling when jbossHome is <code>null</code>.
+     */
+    private class SosInterpreterNullJBossHome extends SosInterpreter {
+        public String getJbossHomeDir() {
+            return null;
+        }
     }
 }

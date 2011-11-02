@@ -54,7 +54,7 @@ public class JdrReportDescriptions {
         final ModelNode result = new ModelNode();
         result.get(OPERATION_NAME).set(JdrReportSubsystemAdd.OPERATION_NAME);
         result.get(DESCRIPTION).set(bundle.getString("jdr.add"));
-        result.get(REQUEST_PROPERTIES).setEmptyObject(); // TODO add any request parameters
+        result.get(REQUEST_PROPERTIES).setEmptyObject();
         result.get(REPLY_PROPERTIES).setEmptyObject();
 
         return result;
@@ -67,7 +67,6 @@ public class JdrReportDescriptions {
         result.get(DESCRIPTION).set(bundle.getString("jdr.remove"));
         result.get(REQUEST_PROPERTIES).setEmptyObject();
         result.get(REPLY_PROPERTIES).setEmptyObject();
-         // TODO add any other response details
 
         return result;
     }
@@ -77,7 +76,7 @@ public class JdrReportDescriptions {
         final ModelNode result = new ModelNode();
         result.get(OPERATION_NAME).set(JdrReportRequestHandler.OPERATION_NAME);
         result.get(DESCRIPTION).set(bundle.getString("jdr.request"));
-        result.get(REQUEST_PROPERTIES).setEmptyObject(); // TODO add any request parameters
+        result.get(REQUEST_PROPERTIES).setEmptyObject();
         result.get(REPLY_PROPERTIES, "start-time", DESCRIPTION).set(bundle.getString("jdr.report.starttime"));
         result.get(REPLY_PROPERTIES, "start-time", TYPE).set(ModelType.STRING);
         result.get(REPLY_PROPERTIES, "start-time", REQUIRED).set(true);

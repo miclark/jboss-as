@@ -24,7 +24,6 @@ package org.jboss.as.jdr;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.client.ModelControllerClient;
 import org.jboss.dmr.ModelNode;
-import org.python.core.Py;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
@@ -41,9 +40,18 @@ import static org.jboss.as.jdr.JdrMessages.MESSAGES;
  * @author Mike M. Clark
  */
 public class SosInterpreter {
-    private String jbossHomeDir = System.getProperty("jboss.home.dir");
+
+    private String jbossHomeDir = null;
     private String reportLocationDir = System.getProperty("user.dir");
     private ModelControllerClient controllerClient = null;
+
+    public SosInterpreter() {
+        jbossHomeDir = System.getProperty("jboss.home.dir");
+        if (jbossHomeDir == null) {
+            jbossHomeDir = System.getenv("JBOSS_HOME");
+        }
+        ROOT_LOGGER.debug("JBoss Home directory: " + jbossHomeDir);
+    }
 
     public JdrReport collect() throws OperationFailedException {
         ROOT_LOGGER.startingCollection();
@@ -83,8 +91,8 @@ public class SosInterpreter {
             report = interpreter.get("reportLocation");
             interpreter.cleanup();
         } catch (Throwable t) {
-            Py.printException(t);
             interpreter.cleanup();
+            ROOT_LOGGER.pythonExceptionEncountered(t);
         }
 
         Date endTime = new Date();
@@ -129,13 +137,18 @@ public class SosInterpreter {
      * as specified by the <code>user.dir</code> System property is used.
      */
     public String getJbossHomeDir() {
-        if (jbossHomeDir == null) {
-            jbossHomeDir = System.getenv("JBOSS_HOME");
-        }
         return jbossHomeDir;
     }
 
-    public void setJbossHomeDir(String jbossHomeDir) {
+    /**
+     * Sets the root directory
+     * @param jbossHomeDir
+     * @throws IllegalArgumentException if <code>jbossHomeDir</code> is <code>null</code>.
+     */
+    public void setJbossHomeDir(String jbossHomeDir) throws IllegalArgumentException {
+        if (jbossHomeDir == null) {
+            throw MESSAGES.varNull("jbossHomeDir");
+        }
         this.jbossHomeDir = jbossHomeDir;
     }
 
